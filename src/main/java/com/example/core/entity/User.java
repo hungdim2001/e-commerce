@@ -1,18 +1,18 @@
 package com.example.core.entity;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Getter
 @Setter
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@SuperBuilder
 @Table(name = "users")
-public class User {
+public class User extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,4 +30,7 @@ public class User {
     private String lastName;
     @Column(name = "status", nullable = false)
     private Boolean status;
+    public User() {
+        super();
+    }
 }

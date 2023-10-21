@@ -6,18 +6,12 @@ import com.example.core.dto.request.RegisterRequest;
 import com.example.core.dto.response.LoginResponse;
 import com.example.core.dto.response.RegisterResponse;
 import com.example.core.dto.response.WhoAmIResponse;
-import com.example.core.entity.Code;
-import com.example.core.entity.Token;
-import com.example.core.entity.User;
-import com.example.core.entity.UserRole;
+import com.example.core.entity.*;
 import com.example.core.exceptions.DuplicateException;
 import com.example.core.exceptions.InvalidLoginException;
 import com.example.core.exceptions.InvalidRefreshToken;
 import com.example.core.exceptions.NotFoundException;
-import com.example.core.repository.CodeRepository;
-import com.example.core.repository.TokenRepository;
-import com.example.core.repository.UserRepository;
-import com.example.core.repository.UserRoleRepository;
+import com.example.core.repository.*;
 import com.example.core.security.jwt.JwtUtils;
 import com.example.core.security.jwt.TokenType;
 import com.example.core.util.BaseUtils;
@@ -56,12 +50,18 @@ public class AuthService {
     private MailService mailService;
     @Autowired
     private CodeRepository codeRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     public RegisterResponse register(RegisterRequest user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new DuplicateException(HttpStatus.CONFLICT, "email have already taken");
         } else if (userRepository.existsByusername(user.getUsername())) {
             throw new DuplicateException(HttpStatus.CONFLICT, "username have already taken");
+        }
+        Role role = roleRepository.getRoleByRole(user.getRole().toUpperCase());
+        if (role == null) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "role not found");
         }
 
         User newUser = User.builder()
@@ -71,6 +71,7 @@ public class AuthService {
                 .status(false)
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .createDatetime(new Date())
                 .build();
         User userResponse = userRepository.save(newUser);
         String code = BaseUtils.getAlphaNumericString(6);
@@ -78,18 +79,8 @@ public class AuthService {
                 expiredTime(new Date().getTime() + 300000).userId(userResponse.getId())
                 .build();
         codeRepository.save(newCode);
-        UserRole userRole = new UserRole();
-        if ("admin".equals(user.getRole())) {
-            userRole.setUserId(userResponse.getId());
-//            userRole.setRole(RoleEnum.ADMIN.getRole());
-        } else if ("author".equals(user.getRole())) {
-            userRole.setUserId(userResponse.getId());
-//            userRole.setRole(RoleEnum.AUTHOR.getRole());
-        } else {
-            userRole.setUserId(userResponse.getId());
-//            userRole.setRole(RoleEnum.USER.getRole());
-        }
-        UserRole userRoleSave = userRoleRepo.save(userRole);
+        UserRole userRole = UserRole.builder().roleId(role.getRole()).userId(userResponse.getId()).build();
+        userRoleRepo.save(userRole);
 
         try {
             mailService.sendSimpleEmail(user.getEmail(),
@@ -109,7 +100,7 @@ public class AuthService {
                 .firstName(userResponse.getFirstName())
                 .lastName(userResponse.getLastName())
                 .status(userResponse.getStatus())
-//                .role(userRoleSave.getRole())
+                .role(role.getRole())
                 .build();
     }
 
@@ -223,7 +214,7 @@ public class AuthService {
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
         User userResponse = userRepository.getById(id);
         UserRole userRole = userRoleRepository.findByUserId(userResponse.getId()).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND,"user id not found" )
+                () -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found")
         );
         return WhoAmIResponse.builder()
                 .id(userResponse.getId())

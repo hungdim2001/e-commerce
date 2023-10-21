@@ -1,21 +1,24 @@
 package com.example.core.entity;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
+
 
 @Entity
-@Getter
-@Setter
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "roles")
-public class Role implements Serializable {
+@SuperBuilder
+@Data
+public class Role extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     private String role;
+
+    public Role() {
+        super();
+    }
 }

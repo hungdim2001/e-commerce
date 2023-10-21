@@ -29,6 +29,7 @@ public class UserDetailsImpl  extends User implements UserDetails  {
     }
     public UserDetailsImpl(Long id, String username, String email,String password,
                            GrantedAuthority authority) {
+        super();
         this.id = id;
         this.username = username;
         this.password = password;

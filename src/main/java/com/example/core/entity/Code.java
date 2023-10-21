@@ -4,22 +4,24 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
+@SuperBuilder
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "codes")
-public class Code {
+public class Code  extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String code;
     @Column(name = "user_id")
     private Long userId;
+    @Column(name="expire_time")
     private Long expiredTime;
+
 
 }
