@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Table(name = "tokens")
 @Data
 @SuperBuilder
+@NoArgsConstructor
 public class Token extends AuditTable implements Serializable {
     private String token;
     @Id

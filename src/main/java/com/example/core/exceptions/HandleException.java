@@ -1,7 +1,9 @@
 package com.example.core.exceptions;
 
+import com.example.core.helper.ResponseObj;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -97,5 +99,10 @@ public class HandleException {
     public ResponseEntity handleInvalidLoginException(InvalidLoginException ex) {
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getStatus(), ex.getMessage(), ex.getStatus().value()));
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseObj(HttpStatus.FORBIDDEN.value(), false, "Access denied. You do not have the required role.", null));
+
     }
 }

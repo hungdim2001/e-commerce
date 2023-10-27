@@ -13,6 +13,8 @@ import java.io.Serializable;
 @Entity
 @Data
 @Table(name = "codes")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Code  extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +24,7 @@ public class Code  extends AuditTable implements Serializable {
     private Long userId;
     @Column(name="expire_time")
     private Long expiredTime;
+
 
 
 }

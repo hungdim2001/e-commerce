@@ -10,19 +10,15 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Getter
 @SuperBuilder
-@Setter
 @Table(name = "users_roles")
+@NoArgsConstructor
 public class UserRole extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @Column(name = "user_id", nullable = false)
     Long userId;
-    @Column(name = "role_is", nullable = false)
-    String roleId;
-    public UserRole (){
-        super();
-    }
+    @Column(name = "role_id", nullable = false)
+    Long roleId;
 }

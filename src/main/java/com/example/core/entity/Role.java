@@ -12,13 +12,10 @@ import java.util.Date;
 @Table(name = "roles")
 @SuperBuilder
 @Data
+@NoArgsConstructor
 public class Role extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String role;
-
-    public Role() {
-        super();
-    }
 }

@@ -7,11 +7,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Getter
-@Setter
 @Data
 @SuperBuilder
+@NoArgsConstructor
 @Table(name = "users")
+@AllArgsConstructor
 public class User extends AuditTable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +28,5 @@ public class User extends AuditTable implements Serializable {
     private String firstName;
     @Column(name = "last_name", nullable = false)
     private String lastName;
-    @Column(name = "status", nullable = false)
-    private Boolean status;
-    public User() {
-        super();
-    }
+
 }

@@ -21,11 +21,11 @@ public class RoleController {
     @Autowired
     RoleService roleService;
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ApiOperation(value = "create role")
     @PostMapping("")
     @CrossOrigin
-    public ResponseEntity logout(@RequestBody CreateRoleRequest roleRequest) {
+    public ResponseEntity createRole(@RequestBody CreateRoleRequest roleRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create role successfully", roleService.createRole(roleRequest.getRole().toUpperCase())));
     }
 

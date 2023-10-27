@@ -64,52 +64,28 @@ public class AuthService {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "role not found");
         }
 
-        User newUser = User.builder()
-                .email(user.getEmail())
-                .password(encoder.encode(user.getPassword()))
-                .username(user.getUsername())
-                .status(false)
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .createDatetime(new Date())
-                .build();
+        User newUser = User.builder().email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getUsername()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
         User userResponse = userRepository.save(newUser);
         String code = BaseUtils.getAlphaNumericString(6);
-        Code newCode = Code.builder().code(code).
-                expiredTime(new Date().getTime() + 300000).userId(userResponse.getId())
-                .build();
+        Code newCode = Code.builder().code(code).expiredTime(new Date().getTime() + 300000).userId(userResponse.getId()).build();
         codeRepository.save(newCode);
-        UserRole userRole = UserRole.builder().roleId(role.getRole()).userId(userResponse.getId()).build();
+        UserRole userRole = UserRole.builder().roleId(role.getId()).userId(userResponse.getId()).createDatetime(new Date()).createUser(newUser.getId()).build();
         userRoleRepo.save(userRole);
 
         try {
-            mailService.sendSimpleEmail(user.getEmail(),
-                    "Verify Email",
-                    code);
+            mailService.sendSimpleEmail(user.getEmail(), "Verify Email", code);
         } catch (Exception e) {
             throw new DuplicateException(HttpStatus.CONFLICT, "can't send email");
 
         }
 
-        return RegisterResponse.builder()
-                .email(userResponse.getEmail())
-                .id(userResponse.getId())
-                .username(userResponse.getUsername())
-                .fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
-                .avatarUrl(userResponse.getAvatarUrl())
-                .firstName(userResponse.getFirstName())
-                .lastName(userResponse.getLastName())
-                .status(userResponse.getStatus())
-                .role(role.getRole())
-                .build();
+        return RegisterResponse.builder().email(userResponse.getEmail()).id(userResponse.getId()).username(userResponse.getUsername()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName()).avatarUrl(userResponse.getAvatarUrl()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).role(role.getRole()).build();
     }
 
     public String verify(String code, HttpServletRequest request) {
         String jwt = BaseUtils.parseJwt(request);
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
-        Code codeFound = codeRepository.findByCode(code).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND, "Code is invalid")
-        );
+        Code codeFound = codeRepository.findByCode(code).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Code is invalid"));
         Long currentTime = new Date().getTime();
         if (currentTime > codeFound.getExpiredTime()) {
             throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST, "code is expired");
@@ -122,8 +98,7 @@ public class AuthService {
     public LoginResponse signIn(@Valid @RequestBody LoginRequest user) {
         Authentication authentication = null;
         try {
-            authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getAccount(), user.getPassword()));
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getAccount(), user.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             throw new InvalidLoginException(HttpStatus.UNAUTHORIZED, e.getMessage());
@@ -134,13 +109,7 @@ public class AuthService {
         TokenType refreshToken = jwtUtils.generateJwtToken(userResponse.getId(), false);
         Token token = Token.builder().token(refreshToken.getToken()).build();
         tokenRepository.save(token);
-        return LoginResponse
-                .builder()
-                .accessToken(accessToken.getToken())
-                .expiresIn(accessToken.getExpiresIn() - (new Date()).getTime())
-                .refreshToken(refreshToken.getToken())
-                .refreshExpiresIn(refreshToken.getExpiresIn() - (new Date()).getTime())
-                .build();
+        return LoginResponse.builder().accessToken(accessToken.getToken()).expiresIn(accessToken.getExpiresIn() - (new Date()).getTime()).refreshToken(refreshToken.getToken()).refreshExpiresIn(refreshToken.getExpiresIn() - (new Date()).getTime()).build();
 
     }
 
@@ -153,22 +122,13 @@ public class AuthService {
     }
 
     public String findEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND, "Email không tồn tại")
-        );
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Email không tồn tại"));
         TokenType accessToken = jwtUtils.generateJwtToken(user.getId(), true);
 
-        String message = " Xin chào bạn,\n" +
-                "\n" +
-                "Để khôi phục lại mật khẩu, xin nhấp vào " + "http://localhost:8080/reset-password?token=" +
-                accessToken.getToken() +
-                " để tạo mật khẩu mới." +
-                "Link này sẽ hết hạn trong 5 phút";
+        String message = " Xin chào bạn,\n" + "\n" + "Để khôi phục lại mật khẩu, xin nhấp vào " + "http://localhost:8080/reset-password?token=" + accessToken.getToken() + " để tạo mật khẩu mới." + "Link này sẽ hết hạn trong 5 phút";
         try {
 
-            mailService.sendSimpleEmail(user.getEmail(),
-                    "Reset Password",
-                    message, true);
+            mailService.sendSimpleEmail(user.getEmail(), "Reset Password", message, true);
         } catch (Exception e) {
             throw new DuplicateException(HttpStatus.CONFLICT, "can't send email");
         }
@@ -179,19 +139,13 @@ public class AuthService {
         String jwt = BaseUtils.parseJwt(request);
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
         codeRepository.removeCode(id);
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id")
-        );
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
         String code = BaseUtils.getAlphaNumericString(6);
-        Code newCode = Code.builder().code(code).
-                expiredTime(new Date().getTime() + 300000).userId(user.getId())
-                .build();
+        Code newCode = Code.builder().code(code).expiredTime(new Date().getTime() + 300000).userId(user.getId()).build();
         codeRepository.save(newCode);
 
         try {
-            mailService.sendSimpleEmail(user.getEmail(),
-                    "Verify Email",
-                    code);
+            mailService.sendSimpleEmail(user.getEmail(), "Verify Email", code);
         } catch (Exception e) {
             throw new DuplicateException(HttpStatus.CONFLICT, "can't send email");
         }
@@ -201,9 +155,7 @@ public class AuthService {
     public String resetPassword(String password, HttpServletRequest request) {
         String jwt = BaseUtils.parseJwt(request);
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id")
-        );
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
         String newPassword = encoder.encode(password);
         userRepository.updatePassword(newPassword, user.getId());
         return null;
@@ -213,20 +165,10 @@ public class AuthService {
         String jwt = BaseUtils.parseJwt(request);
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
         User userResponse = userRepository.getById(id);
-        UserRole userRole = userRoleRepository.findByUserId(userResponse.getId()).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found")
-        );
-        return WhoAmIResponse.builder()
-                .id(userResponse.getId())
-                .avatarUrl(userResponse.getAvatarUrl())
-                .fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
+        UserRole userRole = userRoleRepository.findByUserId(userResponse.getId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found"));
+        return WhoAmIResponse.builder().id(userResponse.getId()).avatarUrl(userResponse.getAvatarUrl()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
 //                .role(userRole.getRole())
-                .username(userResponse.getUsername())
-                .firstName(userResponse.getFirstName())
-                .lastName(userResponse.getLastName())
-                .status(userResponse.getStatus())
-                .email(userResponse.getEmail())
-                .build();
+                .username(userResponse.getUsername()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).email(userResponse.getEmail()).build();
     }
 }
 /*

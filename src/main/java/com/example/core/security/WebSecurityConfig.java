@@ -57,30 +57,31 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http
-                .authorizeRequests()
-                .antMatchers("/login").permitAll()
-                .antMatchers("/index").authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/index")
-                .and()
-                .sessionManagement()
-                .sessionFixation().newSession()
-                .maximumSessions(1)
-                .expiredUrl("/login")
-                .and()
-                .and()
-                .logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login");
+//        http
+//                .authorizeRequests()
+//                .antMatchers("/login").permitAll()
+//                .antMatchers("/index").authenticated()
+//                .and()
+//                .formLogin()
+//                .loginPage("/login")
+//                .defaultSuccessUrl("/index")
+//                .and()
+//                .sessionManagement()
+//                .sessionFixation().newSession()
+//                .maximumSessions(1)
+//                .expiredUrl("/login")
+//                .and()
+//                .and()
+//                .logout()
+//                .logoutUrl("/logout")
+//                .logoutSuccessUrl("/login");
         http.cors().and().csrf().disable()
                 .authorizeRequests().antMatchers("/api/auth/**")
                 .permitAll();
-      /*  http.authorizeRequests().antMatchers("/api/**").permitAll();
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        /*  http.authorizeRequests().antMatchers("/api/**").permitAll();
                 *//*.httpBasic().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()*//*
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/category/**")
