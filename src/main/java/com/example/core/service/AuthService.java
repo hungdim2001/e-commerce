@@ -101,7 +101,7 @@ public class AuthService {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getAccount(), user.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
-            throw new InvalidLoginException(HttpStatus.UNAUTHORIZED, e.getMessage());
+            throw new InvalidLoginException(HttpStatus.UNAUTHORIZED, "Tên đăng nhập hoặc mật khẩu không chính xác");
         }
 
         User userResponse = userRepository.findAccount(user.getAccount());
@@ -165,9 +165,10 @@ public class AuthService {
         String jwt = BaseUtils.parseJwt(request);
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
         User userResponse = userRepository.getById(id);
-        UserRole userRole = userRoleRepository.findByUserId(userResponse.getId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found"));
+        String  role = userRoleRepository.findRoleByUserId(userResponse.getId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found"));
+
         return WhoAmIResponse.builder().id(userResponse.getId()).avatarUrl(userResponse.getAvatarUrl()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
-//                .role(userRole.getRole())
+                .role(role)
                 .username(userResponse.getUsername()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).email(userResponse.getEmail()).build();
     }
 }

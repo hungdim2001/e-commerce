@@ -12,13 +12,13 @@ import java.util.Date;
 @MappedSuperclass
 public abstract class AuditTable {
     @Column(name = "create_datetime")
-    private Date createDatetime;
+    protected Date createDatetime;
     @Column(name = "update_datetime")
-    private Date updateDatetime;
+    protected Date updateDatetime;
     @Column(name = "create_user")
-    private Long createUser;
+    protected Long createUser;
     @Column(name = "update_user")
-    private Long updateUser;
+    protected Long updateUser;
     @Column(name = "status")
-    private Boolean status;
+    protected Boolean status;
 }
