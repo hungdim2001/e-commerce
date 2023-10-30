@@ -22,10 +22,12 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     Optional<User> findByEmail(String email);
 
+    Boolean existsByPhone(String phone);
+
     @Query(value = "SELECT u FROM User u WHERE u.username =?1 OR u.email = ?1")
     User findAccount(String account);
 
-//    @Query(value = "SELECT new com.example.apiBook.dto.UserDto(u, ur.role )  FROM User u, UserRole ur WHERE  u.username =?1 OR u.email = ?1 and u.id = ur.userId")
+    //    @Query(value = "SELECT new com.example.apiBook.dto.UserDto(u, ur.role )  FROM User u, UserRole ur WHERE  u.username =?1 OR u.email = ?1 and u.id = ur.userId")
 //    Optional<UserDto> findUserAndRole(String account);
 //    @Query(value = "SELECT new com.example.apiBook.dto.UserDto(u, ur.role )  FROM User u, UserRole ur WHERE  u.id = ?1 and u.id = ur.userId")
 //    Optional<UserDto> findUserAndRoleById(Long account);

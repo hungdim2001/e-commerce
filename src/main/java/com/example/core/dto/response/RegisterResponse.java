@@ -15,4 +15,6 @@ public class RegisterResponse {
     private String role;
     private String avatarUrl;
     private Boolean status;
+    private String areaCode;
+    private String phone;
 }

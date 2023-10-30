@@ -28,5 +28,8 @@ public class User extends AuditTable implements Serializable {
     private String firstName;
     @Column(name = "last_name", nullable = false)
     private String lastName;
-
+    @Column(name = "AREA_CODE")
+    private String areaCode;
+    @Column(name="phone")
+    private String phone;
 }

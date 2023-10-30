@@ -32,6 +32,8 @@ import java.util.Date;
 @Service
 public class AuthService {
     @Autowired
+    private AreaRepository areaRepository;
+    @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserRepository userRepository;
@@ -63,8 +65,13 @@ public class AuthService {
         if (role == null) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "role not found");
         }
-
-        User newUser = User.builder().email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getUsername()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
+        if (!areaRepository.existsByAreaCode(user.getAreaCode())) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "address is not exits");
+        }
+        if (!userRepository.existsByPhone(user.getPhone())) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "phone number already exists");
+        }
+        User newUser = User.builder().phone(user.getPhone()).email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getUsername()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
         User userResponse = userRepository.save(newUser);
         String code = BaseUtils.getAlphaNumericString(6);
         Code newCode = Code.builder().code(code).expiredTime(new Date().getTime() + 300000).userId(userResponse.getId()).build();
@@ -76,10 +83,8 @@ public class AuthService {
             mailService.sendSimpleEmail(user.getEmail(), "Verify Email", code);
         } catch (Exception e) {
             throw new DuplicateException(HttpStatus.CONFLICT, "can't send email");
-
         }
-
-        return RegisterResponse.builder().email(userResponse.getEmail()).id(userResponse.getId()).username(userResponse.getUsername()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName()).avatarUrl(userResponse.getAvatarUrl()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).role(role.getRole()).build();
+        return RegisterResponse.builder().phone(userResponse.getPhone()).email(userResponse.getEmail()).id(userResponse.getId()).areaCode(userResponse.getAreaCode()).username(userResponse.getUsername()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName()).avatarUrl(userResponse.getAvatarUrl()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).role(role.getRole()).build();
     }
 
     public String verify(String code, HttpServletRequest request) {
@@ -101,7 +106,7 @@ public class AuthService {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getAccount(), user.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
-            throw new InvalidLoginException(HttpStatus.UNAUTHORIZED, "Tên đăng nhập hoặc mật khẩu không chính xác");
+            throw new InvalidLoginException(HttpStatus.UNAUTHORIZED, "Username or password incorrect");
         }
 
         User userResponse = userRepository.findAccount(user.getAccount());
@@ -122,7 +127,7 @@ public class AuthService {
     }
 
     public String findEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Email không tồn tại"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Email not exist"));
         TokenType accessToken = jwtUtils.generateJwtToken(user.getId(), true);
 
         String message = " Xin chào bạn,\n" + "\n" + "Để khôi phục lại mật khẩu, xin nhấp vào " + "http://localhost:8080/reset-password?token=" + accessToken.getToken() + " để tạo mật khẩu mới." + "Link này sẽ hết hạn trong 5 phút";
@@ -165,10 +170,10 @@ public class AuthService {
         String jwt = BaseUtils.parseJwt(request);
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
         User userResponse = userRepository.getById(id);
-        String  role = userRoleRepository.findRoleByUserId(userResponse.getId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found"));
+        String role = userRoleRepository.findRoleByUserId(userResponse.getId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found"));
 
         return WhoAmIResponse.builder().id(userResponse.getId()).avatarUrl(userResponse.getAvatarUrl()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
-                .role(role)
+                .role(role).phone(userResponse.getPhone())
                 .username(userResponse.getUsername()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).email(userResponse.getEmail()).build();
     }
 }
