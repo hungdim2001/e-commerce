@@ -21,4 +21,6 @@ public abstract class AuditTable {
     protected Long updateUser;
     @Column(name = "status")
     protected Boolean status;
+    @Column(name = "description")
+    protected Boolean description;
 }

@@ -63,15 +63,15 @@ public class AuthService {
         }
         Role role = roleRepository.getRoleByRole(user.getRole().toUpperCase());
         if (role == null) {
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "role not found");
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "Role not found");
         }
         if (!areaRepository.existsByAreaCode(user.getAreaCode())) {
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "address is not exits");
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "Address is not exits");
         }
-        if (!userRepository.existsByPhone(user.getPhone())) {
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "phone number already exists");
+        if (userRepository.existsByPhone(user.getPhone())) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "Phone number already exists");
         }
-        User newUser = User.builder().phone(user.getPhone()).email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getUsername()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
+        User newUser = User.builder().phone(user.getPhone()).email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getEmail()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
         User userResponse = userRepository.save(newUser);
         String code = BaseUtils.getAlphaNumericString(6);
         Code newCode = Code.builder().code(code).expiredTime(new Date().getTime() + 300000).userId(userResponse.getId()).build();
