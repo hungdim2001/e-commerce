@@ -3,14 +3,16 @@ package com.example.core.entity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.util.Date;
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @MappedSuperclass
 public abstract class AuditTable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(name = "create_datetime")
     protected Date createDatetime;
     @Column(name = "update_datetime")

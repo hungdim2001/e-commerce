@@ -11,7 +11,6 @@ import javax.persistence.Column;
 @SuperBuilder
 @NoArgsConstructor
 public class AreaDTO   extends AuditTable {
-    private Long id;
     private String areaCode;
     private String province;
     private String district;

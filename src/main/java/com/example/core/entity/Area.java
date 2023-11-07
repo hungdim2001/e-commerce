@@ -15,9 +15,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Area extends AuditTable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     @Column(name = "AREA_CODE")
     private String areaCode;
     @Column(name = "PROVINCE")

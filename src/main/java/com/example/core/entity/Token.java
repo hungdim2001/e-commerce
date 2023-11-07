@@ -16,7 +16,5 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Token extends AuditTable implements Serializable {
     private String token;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
 }

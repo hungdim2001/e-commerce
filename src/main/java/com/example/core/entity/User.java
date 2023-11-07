@@ -13,9 +13,7 @@ import java.io.Serializable;
 @Table(name = "users")
 @AllArgsConstructor
 public class User extends AuditTable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "user_name", nullable = false)

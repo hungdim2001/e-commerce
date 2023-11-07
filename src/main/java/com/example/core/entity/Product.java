@@ -15,9 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product extends AuditTable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
     @Column(name = "PRODUCT_TYPE_ID")
     private Long productTypeId;
     @Column(name = "PRODUCT_SPEC_ID")

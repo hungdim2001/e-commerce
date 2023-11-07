@@ -1,3 +1,4 @@
+
 package com.example.core.entity;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +15,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductSpecCharUse extends AuditTable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    private Long productSpecCharValueID;
+    private Long productSpecCharID;
 }
+
