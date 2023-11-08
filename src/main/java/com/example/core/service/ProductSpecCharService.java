@@ -59,13 +59,15 @@ public class ProductSpecCharService {
         List<ProductSpecCharUse> productSpecCharUses = productSpecCharValueDTOS.stream().
                 map(productSpecCharValueDTO -> ProductSpecCharUse.builder().productSpecCharID(result.getId()).
                         productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
-                createDatetime(new Date()).createUser(productSpecCharValueDTO.getCreateUser()).build()).collect(Collectors.toList());
+                        createDatetime(new Date()).createUser(productSpecCharValueDTO.getCreateUser()).build()).collect(Collectors.toList());
         productCharUseRepository.saveAll(productSpecCharUses);
         result.setProductSpecCharValueDTOS(productSpecCharValueDTOS.toArray(new ProductSpecCharValueDTO[0]));
         return result;
     }
 
-
+    public ProductSpecCharDTO get(){
+        return null;
+    }
     public boolean checkDuplicateCode(List<ProductSpecCharValue> productSpecCharValues) {
         // Create a HashMap to store encountered codes
         HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();

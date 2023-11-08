@@ -24,5 +24,5 @@ public abstract class AuditTable {
     @Column(name = "status")
     protected Boolean status;
     @Column(name = "description")
-    protected Boolean description;
+    protected String description;
 }

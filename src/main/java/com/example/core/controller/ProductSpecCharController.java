@@ -1,3 +1,4 @@
+
 package com.example.core.controller;
 
 
@@ -24,7 +25,12 @@ public class ProductSpecCharController {
     @CrossOrigin
     public ResponseEntity create(@Valid @RequestBody ProductSpecCharDTO productSpecCharDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
-
+    }
+    @PostMapping(value = {""})
+    @ApiOperation(value = "get product spec char")
+    @CrossOrigin
+    public ResponseEntity get() {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get product spec char successfully ", productSpecCharService.get()));
     }
 
 }
