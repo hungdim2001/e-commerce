@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
@@ -14,5 +16,5 @@ import lombok.experimental.SuperBuilder;
 public class ProductSpecCharDTO extends AuditTable {
     private String code;
     private String name;
-    private ProductSpecCharValueDTO[] productSpecCharValueDTOS;
+    private List<ProductSpecCharValueDTO> productSpecCharValueDTOS;
 }

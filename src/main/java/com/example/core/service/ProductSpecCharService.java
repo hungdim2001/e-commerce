@@ -15,11 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static jdk.nashorn.internal.objects.NativeArray.forEach;
 
 @Service
 public class ProductSpecCharService {
@@ -34,7 +33,7 @@ public class ProductSpecCharService {
 
     public ProductSpecCharDTO create(ProductSpecCharDTO productSpecCharDTO) {
 
-        List<ProductSpecCharValue> productSpecCharValues = Arrays.stream(productSpecCharDTO.getProductSpecCharValueDTOS()).
+        List<ProductSpecCharValue> productSpecCharValues = productSpecCharDTO.getProductSpecCharValueDTOS().stream().
                 map(productSpecCharValueDTO -> {
                     if (productSpecCharValueDTO.getCreateDatetime() == null) {
                         productSpecCharValueDTO.setCreateDatetime(new Date());
@@ -45,9 +44,9 @@ public class ProductSpecCharService {
         checkDuplicateCode(productSpecCharValues);
 //save map from input productSpecCharDTO to ProductSpecChar
         ProductSpecChar productSpecChar = modelMapper.map(productSpecCharDTO, ProductSpecChar.class);
-        if (productSpecChar.getCreateDatetime() == null) {
-            productSpecChar.setCreateDatetime(new Date());
-        }
+//        if (productSpecChar.getCreateDatetime() == null) {
+//            productSpecChar.setCreateDatetime(new Date());
+//        }
         //save ProductCharValue
         List<ProductSpecCharValueDTO> productSpecCharValueDTOS = productCharValueRepository.
                 saveAll(productSpecCharValues).stream().map(productSpecCharValue -> modelMapper.
@@ -61,13 +60,40 @@ public class ProductSpecCharService {
                         productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
                         createDatetime(new Date()).createUser(productSpecCharValueDTO.getCreateUser()).build()).collect(Collectors.toList());
         productCharUseRepository.saveAll(productSpecCharUses);
-        result.setProductSpecCharValueDTOS(productSpecCharValueDTOS.toArray(new ProductSpecCharValueDTO[0]));
+        result.setProductSpecCharValueDTOS(productSpecCharValueDTOS);
         return result;
     }
 
-    public ProductSpecCharDTO get(){
-        return null;
+    public List<ProductSpecCharDTO> get() {
+        List<Object[]> resultObj = productCharRepository.getFull();
+
+
+        List<ProductSpecCharDTO> result = new ArrayList<>();
+        if (!resultObj.isEmpty()) {
+            ProductSpecCharDTO tmp = modelMapper.map(resultObj.get(0)[0], ProductSpecCharDTO.class);
+            List<ProductSpecCharValueDTO> tmpValue = new ArrayList<>();
+            for (Object[] item : resultObj) {
+                ProductSpecCharDTO productSpecCharDTO = modelMapper.map(item[0], ProductSpecCharDTO.class);
+                ProductSpecCharValueDTO specCharValueDTO = modelMapper.map(item[1], ProductSpecCharValueDTO.class);
+                if (tmp.getId() != productSpecCharDTO.getId()) {
+                    tmp.setProductSpecCharValueDTOS(tmpValue);
+                    result.add(tmp);
+                    tmp = modelMapper.map(item[0], ProductSpecCharDTO.class);
+                    tmpValue = new ArrayList<>();
+                    tmpValue.add(specCharValueDTO);
+                } else {
+                    tmpValue.add(specCharValueDTO);
+                }
+
+            }
+            tmp.setProductSpecCharValueDTOS(tmpValue);
+            result.add(tmp);
+
+
+        }
+        return result;
     }
+
     public boolean checkDuplicateCode(List<ProductSpecCharValue> productSpecCharValues) {
         // Create a HashMap to store encountered codes
         HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();

@@ -16,7 +16,8 @@ import javax.validation.Valid;
 @RequestMapping("/api/product/char")
 @RestController
 @CrossOrigin
-public class ProductSpecCharController {
+public class
+ProductSpecCharController {
     @Autowired
     ProductSpecCharService productSpecCharService;
 
@@ -26,7 +27,7 @@ public class ProductSpecCharController {
     public ResponseEntity create(@Valid @RequestBody ProductSpecCharDTO productSpecCharDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
     }
-    @PostMapping(value = {""})
+    @GetMapping(value = {""})
     @ApiOperation(value = "get product spec char")
     @CrossOrigin
     public ResponseEntity get() {
