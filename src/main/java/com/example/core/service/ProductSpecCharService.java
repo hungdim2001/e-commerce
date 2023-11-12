@@ -3,6 +3,7 @@ package com.example.core.service;
 
 import com.example.core.dto.ProductSpecCharDTO;
 import com.example.core.dto.ProductSpecCharValueDTO;
+import com.example.core.entity.AuditTable;
 import com.example.core.entity.ProductSpecChar;
 import com.example.core.entity.ProductSpecCharUse;
 import com.example.core.entity.ProductSpecCharValue;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static jdk.nashorn.internal.objects.NativeArray.forEach;
 
 @Service
 public class ProductSpecCharService {
@@ -115,4 +115,14 @@ public class ProductSpecCharService {
 
         return true;
     }
+
+    public List<ProductSpecCharDTO> delete(List<Long> productSpecCharIds) {
+//        productCharRepository.delete(productSpecCharDTOS.stream().map(AuditTable::getId).collect(Collectors.toList()));
+
+        productCharRepository.delete (productSpecCharIds);
+        return get();
+
+    }
+
+
 }

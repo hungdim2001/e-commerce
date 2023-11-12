@@ -1,4 +1,3 @@
-
 package com.example.core.controller;
 
 
@@ -12,12 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequestMapping("/api/product/char")
 @RestController
 @CrossOrigin
-public class
-ProductSpecCharController {
+public class ProductSpecCharController {
     @Autowired
     ProductSpecCharService productSpecCharService;
 
@@ -27,9 +26,16 @@ ProductSpecCharController {
     public ResponseEntity create(@Valid @RequestBody ProductSpecCharDTO productSpecCharDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
     }
+
+    @DeleteMapping(value = {""})
+    @ApiOperation(value = "Create new product spec char")
+    @CrossOrigin
+    public ResponseEntity delete(@RequestBody List<Long> productSpecCharIds) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.delete(productSpecCharIds)));
+    }
+
     @GetMapping(value = {""})
     @ApiOperation(value = "get product spec char")
-    @CrossOrigin
     public ResponseEntity get() {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get product spec char successfully ", productSpecCharService.get()));
     }

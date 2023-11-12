@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface ProductCharRepositoryCustom {
     List getFull();
+
+    void delete(List<Long> id);
+
 }
