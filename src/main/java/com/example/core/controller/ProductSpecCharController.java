@@ -8,10 +8,13 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static com.sun.xml.internal.ws.api.model.wsdl.WSDLBoundOperation.ANONYMOUS.required;
 
 @RequestMapping("/api/product/char")
 @RestController
@@ -20,6 +23,7 @@ public class ProductSpecCharController {
     @Autowired
     ProductSpecCharService productSpecCharService;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = {""})
     @ApiOperation(value = "Create new product spec char")
     @CrossOrigin
@@ -27,6 +31,8 @@ public class ProductSpecCharController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = {""})
     @ApiOperation(value = "Create new product spec char")
     @CrossOrigin
@@ -34,10 +40,12 @@ public class ProductSpecCharController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.delete(productSpecCharIds)));
     }
 
-    @GetMapping(value = {""})
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping(value = {"","/{id}"})
     @ApiOperation(value = "get product spec char")
-    public ResponseEntity get() {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get product spec char successfully ", productSpecCharService.get()));
+    public ResponseEntity get(@PathVariable(required = false) Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get product spec char successfully ", productSpecCharService.get(id)));
     }
 
 }

@@ -22,7 +22,7 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
     private EntityManager em;
 
     @Override
-    public List getFull() {
+    public List get(Long id) {
 
         StringBuilder sql = new StringBuilder();
         sql.append(
@@ -49,11 +49,14 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
                         "        right   JOIN\n" +
                         "    product_spec_char_values pscv ON pscu.product_spec_char_valueid = pscv.id\n" +
                         "        right JOIN\n" +
-                        "    product_spec_chars psc ON pscu.product_spec_charid = psc.id;\n");
-
+                        "    product_spec_chars psc ON pscu.product_spec_charid = psc.id\n");
+        if (id != null) {
+            sql.append(" where psc.id = :id");
+        }
         Query query = em.createNativeQuery(sql.toString());
-
-
+        if (id != null) {
+            query.setParameter("id", id);
+        }
         List<Object[]> resultList = query.getResultList();
         List<Object[]> result = new ArrayList<>();
 

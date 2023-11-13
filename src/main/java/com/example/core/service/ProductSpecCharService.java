@@ -64,8 +64,8 @@ public class ProductSpecCharService {
         return result;
     }
 
-    public List<ProductSpecCharDTO> get() {
-        List<Object[]> resultObj = productCharRepository.getFull();
+    public List<ProductSpecCharDTO> get(Long id) {
+        List<Object[]> resultObj = productCharRepository.get(id);
 
 
         List<ProductSpecCharDTO> result = new ArrayList<>();
@@ -117,10 +117,8 @@ public class ProductSpecCharService {
     }
 
     public List<ProductSpecCharDTO> delete(List<Long> productSpecCharIds) {
-//        productCharRepository.delete(productSpecCharDTOS.stream().map(AuditTable::getId).collect(Collectors.toList()));
-
         productCharRepository.delete (productSpecCharIds);
-        return get();
+        return get(null);
 
     }
 
