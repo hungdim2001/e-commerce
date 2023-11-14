@@ -8,9 +8,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequestMapping("/api/product/char/value")
 @RestController
@@ -20,10 +22,19 @@ public class ProductSpecCharValueController {
     ProductSpecCharValueService productSpecCharValueService;
 
     @PostMapping(value = {"/{code}"})
-    @ApiOperation(value = "Create new product spec char")
+    @ApiOperation(value = "check duplicate  spec char value code")
     @CrossOrigin
-    public ResponseEntity create(@PathVariable(required = true) String code) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create new product spec char successfully", productSpecCharValueService.checkProductCharValueByCode(code)));
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity check(@PathVariable(required = true) String code) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "check duplicate  spec char value code successfully", productSpecCharValueService.checkProductCharValueByCode(code)));
+
+    }
+    @DeleteMapping(value = {""})
+    @ApiOperation(value = "delete product spec char value")
+    @CrossOrigin
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity delete(@RequestBody List<Long> ids) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create new product spec char successfully", productSpecCharValueService.delete(ids)));
 
     }
 }

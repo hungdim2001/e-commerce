@@ -34,7 +34,7 @@ public class ProductSpecCharController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = {""})
-    @ApiOperation(value = "Create new product spec char")
+    @ApiOperation(value = "delete product spec char")
     @CrossOrigin
     public ResponseEntity delete(@RequestBody List<Long> productSpecCharIds) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.delete(productSpecCharIds)));
