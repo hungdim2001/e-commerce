@@ -26,7 +26,7 @@ public class ProductSpecCharValueController {
     @CrossOrigin
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity check(@PathVariable(required = true) String code) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "check duplicate  spec char value code successfully", productSpecCharValueService.checkProductCharValueByCode(code)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "check duplicate  spec char value code successfully", productSpecCharValueService.checkProductCharValueByCodeAndID(code,null)));
 
     }
     @DeleteMapping(value = {""})

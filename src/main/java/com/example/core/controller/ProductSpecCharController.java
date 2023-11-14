@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.sun.xml.internal.ws.api.model.wsdl.WSDLBoundOperation.ANONYMOUS.required;
 
 @RequestMapping("/api/product/char")
 @RestController
@@ -30,7 +29,13 @@ public class ProductSpecCharController {
     public ResponseEntity create(@Valid @RequestBody ProductSpecCharDTO productSpecCharDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
     }
-
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PostMapping(value = {""})
+//    @ApiOperation(value = "Update product spec char")
+//    @CrossOrigin
+//    public ResponseEntity update(@Valid @RequestBody ProductSpecCharDTO productSpecCharDTO) {
+//        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
+//    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = {""})

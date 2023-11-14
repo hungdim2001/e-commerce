@@ -32,6 +32,45 @@ public class ProductSpecCharService {
     private ModelMapper modelMapper;
 
     public ProductSpecCharDTO create(ProductSpecCharDTO productSpecCharDTO) {
+        List<ProductSpecCharValue> productSpecCharValues = productSpecCharDTO.getProductSpecCharValueDTOS().stream().
+                map(productSpecCharValueDTO -> {
+                    if (productSpecCharValueDTO.getCreateDatetime() == null) {
+                        productSpecCharValueDTO.setCreateDatetime(new Date());
+                    }
+                    return modelMapper.map(productSpecCharValueDTO, ProductSpecCharValue.class);
+                }).collect(Collectors.toList());
+        //check duplicate code product spec char
+        if (productCharRepository.existsByCodeAndId(productSpecCharDTO.getCode(), productSpecCharDTO.getId()) > 0) {
+            throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product spec char code value: " + productSpecCharDTO.getCode());
+        }
+//check duplicate code product spec char value
+        checkDuplicateCode(productSpecCharValues);
+        List<Long> oldProductCharValueId = productSpecCharValues.stream().filter(item -> item.getId() != null).map(item->
+                item.getId()).collect(Collectors.toList());
+//save map from input productSpecCharDTO to ProductSpecChar
+        ProductSpecChar productSpecChar = modelMapper.map(productSpecCharDTO, ProductSpecChar.class);
+//        if (productSpecChar.getCreateDatetime() == null) {
+//            productSpecChar.setCreateDatetime(new Date());
+//        }
+        //save ProductCharValue
+        List<ProductSpecCharValueDTO> productSpecCharValueDTOS = productCharValueRepository.
+                saveAll(productSpecCharValues).stream().map(productSpecCharValue -> modelMapper.
+                        map(productSpecCharValue, ProductSpecCharValueDTO.class)).collect(Collectors.toList());
+        //Save ProductChar
+        ProductSpecCharDTO result = modelMapper.map(productCharRepository.save(productSpecChar), ProductSpecCharDTO.class);
+
+
+        List<ProductSpecCharUse> productSpecCharUses = productSpecCharValueDTOS.stream().filter(item -> !oldProductCharValueId.contains(item.getId())).
+                map(productSpecCharValueDTO -> ProductSpecCharUse.builder().productSpecCharID(result.getId()).
+                        productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
+                        createDatetime(new Date()).createUser(productSpecCharValueDTO.getCreateUser()).build()).collect(Collectors.toList());
+        productCharUseRepository.saveAll(productSpecCharUses);
+        result.setProductSpecCharValueDTOS(productSpecCharValueDTOS);
+        return result;
+    }
+
+
+    public ProductSpecCharDTO update(ProductSpecCharDTO productSpecCharDTO) {
 
         List<ProductSpecCharValue> productSpecCharValues = productSpecCharDTO.getProductSpecCharValueDTOS().stream().
                 map(productSpecCharValueDTO -> {
@@ -40,6 +79,11 @@ public class ProductSpecCharService {
                     }
                     return modelMapper.map(productSpecCharValueDTO, ProductSpecCharValue.class);
                 }).collect(Collectors.toList());
+//check duplicate code product spec char
+        if (productCharRepository.existsByCodeAndId(productSpecCharDTO.getCode(), productSpecCharDTO.getId()) > 0) {
+            throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product spec char code value: " + productSpecCharDTO.getCode());
+        }
+
 //check duplicate code product spec char value
         checkDuplicateCode(productSpecCharValues);
 //save map from input productSpecCharDTO to ProductSpecChar
@@ -94,7 +138,35 @@ public class ProductSpecCharService {
         return result;
     }
 
+    public List<ProductSpecCharDTO> delete(List<Long> productSpecCharIds) {
+        productCharRepository.delete(productSpecCharIds);
+        return get(null);
+
+    }
+
     public boolean checkDuplicateCode(List<ProductSpecCharValue> productSpecCharValues) {
+        // Create a HashMap to store encountered codes
+        HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();
+
+        for (ProductSpecCharValue productSpecCharValue : productSpecCharValues) {
+            // Check if the code already exists in the HashMap
+            if (codeToProductSpecCharValue.containsKey(productSpecCharValue.getCode())) {
+                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code product spec value: " + productSpecCharValue.getCode());
+            }
+
+            // Check if the code already exists in the database
+            if (productCharValueRepository.existsByCodeAndId(productSpecCharValue.getCode(), productSpecCharValue.getId()) > 0) {
+                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code product spec value: " + productSpecCharValue.getCode());
+            }
+
+            // Add the code to the HashMap
+            codeToProductSpecCharValue.put(productSpecCharValue.getCode(), productSpecCharValue);
+        }
+
+        return true;
+    }
+
+    public boolean checkDuplicateCodeUpdate(List<ProductSpecCharValue> productSpecCharValues) {
         // Create a HashMap to store encountered codes
         HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();
 
@@ -105,7 +177,12 @@ public class ProductSpecCharService {
             }
 
             // Check if the code already exists in the database
-            if (productCharValueRepository.existsByCode(productSpecCharValue.getCode())) {
+//            if (productSpecCharValue.getId() != null) {
+//                if (productCharValueRepository.existsByCodeAndId(productSpecCharValue.getCode(), productSpecCharValue.getId())) {
+//                    throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getCode());
+//                }
+//            }
+            if (productCharValueRepository.existsByCodeAndId(productSpecCharValue.getCode(), productSpecCharValue.getId()) > 0) {
                 throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getCode());
             }
 
@@ -114,12 +191,6 @@ public class ProductSpecCharService {
         }
 
         return true;
-    }
-
-    public List<ProductSpecCharDTO> delete(List<Long> productSpecCharIds) {
-        productCharRepository.delete (productSpecCharIds);
-        return get(null);
-
     }
 
 

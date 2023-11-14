@@ -17,10 +17,10 @@ public class ProductSpecCharValueService {
     @Autowired
     ProductSpecCharService productSpecCharService;
 
-    public boolean checkProductCharValueByCode(String code) {
+    public boolean checkProductCharValueByCodeAndID(String code,Long id) {
 
 
-        return productCharValueRepository.existsByCode(code);
+        return productCharValueRepository.existsByCodeAndId(code,id)>0;
     }
 
     public List<ProductSpecCharDTO> delete(List<Long> ids) {
