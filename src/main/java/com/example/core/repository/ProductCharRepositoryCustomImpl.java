@@ -33,7 +33,6 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
                         "    psc.update_user AS psc_update_user,\n" +
                         "    psc.status AS psc_status,\n" +
                         "    psc.description AS psc_description,\n" +
-                        "    psc.code AS psc_code,\n" +
                         "    psc.name AS psc_name,\n" +
                         "    pscv.id AS pscv_id,\n" +
                         "    pscv.create_datetime AS pscv_create_datetime,\n" +
@@ -42,7 +41,6 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
                         "    pscv.update_user AS pscv_update_user,\n" +
                         "    pscv.status AS pscv_status,\n" +
                         "    pscv.description AS pscv_description,\n" +
-                        "    pscv.code AS pscv_code,\n" +
                         "    pscv.value AS pscv_value\n" +
                         "FROM\n" +
                         "    product_spec_char_uses pscu\n" +
@@ -69,21 +67,21 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
                     .updateUser(row[4] != null ? ((BigInteger) row[4]).longValue() : null)
                     .status(row[5] != null ? (Boolean) row[5] : null)
                     .description(row[6] != null ? (String) row[6] : null)
-                    .code(row[7] != null ? (String) row[7] : null)
-                    .name(row[8] != null ? (String) row[8] : null)
+                    .name(row[7] != null ? (String) row[7] : null)
+//                    .name(row[8] != null ? (String) row[8] : null)
                     .build();
             ProductSpecCharValueDTO productSpecCharValueDTO = new ProductSpecCharValueDTO();
             if (row[9] != null) {
                 productSpecCharValueDTO = ProductSpecCharValueDTO.builder()
-                        .id(((BigInteger) row[9]).longValue())
-                        .createDatetime(row[10] != null ? (Date) row[10] : null)
-                        .updateDatetime(row[11] != null ? (Date) row[11] : null)
-                        .createUser(row[12] != null ? ((BigInteger) row[12]).longValue() : null)
-                        .updateUser(row[13] != null ? ((BigInteger) row[13]).longValue() : null)
-                        .status(row[14] != null ? (Boolean) row[14] : null)
-                        .description(row[15] != null ? (String) row[15] : null)
-                        .code(row[16] != null ? (String) row[16] : null)
-                        .value(row[17] != null ? (String) row[17] : null)
+                        .id(((BigInteger) row[8]).longValue())
+                        .createDatetime(row[9] != null ? (Date) row[10] : null)
+                        .updateDatetime(row[10] != null ? (Date) row[11] : null)
+                        .createUser(row[11] != null ? ((BigInteger) row[12]).longValue() : null)
+                        .updateUser(row[12] != null ? ((BigInteger) row[13]).longValue() : null)
+                        .status(row[13] != null ? (Boolean) row[14] : null)
+                        .description(row[14] != null ? (String) row[15] : null)
+                        .value(row[15] != null ? (String) row[16] : null)
+//                        .value(row[17] != null ? (String) row[17] : null)
                         .build();
 
             }

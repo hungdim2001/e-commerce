@@ -11,6 +11,6 @@ public interface ProductCharValueRepository extends JpaRepository<ProductSpecCha
 //    boolean existsByCode(String code);
 
 
-    @Query(value = "select COUNT(*)  from product_spec_char_values where code = ?1 and (?2 IS NULL OR id != ?2)",nativeQuery = true)
-    int existsByCodeAndId(String code, Long id);
+    @Query(value = "select COUNT(*)  from product_spec_char_values where value = ?1 and (?2 IS NULL OR id != ?2)",nativeQuery = true)
+    int existsByValueAndId(String value, Long id);
 }

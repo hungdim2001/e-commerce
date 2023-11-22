@@ -20,7 +20,7 @@ public class ProductSpecCharValueService {
     public boolean checkProductCharValueByCodeAndID(String code,Long id) {
 
 
-        return productCharValueRepository.existsByCodeAndId(code,id)>0;
+        return productCharValueRepository.existsByValueAndId(code,id)>0;
     }
 
     public List<ProductSpecCharDTO> delete(List<Long> ids) {

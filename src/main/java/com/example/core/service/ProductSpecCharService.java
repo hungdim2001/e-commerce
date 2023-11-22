@@ -40,12 +40,12 @@ public class ProductSpecCharService {
                     return modelMapper.map(productSpecCharValueDTO, ProductSpecCharValue.class);
                 }).collect(Collectors.toList());
         //check duplicate code product spec char
-        if (productCharRepository.existsByCodeAndId(productSpecCharDTO.getCode(), productSpecCharDTO.getId()) > 0) {
-            throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product spec char code value: " + productSpecCharDTO.getCode());
+        if (productCharRepository.existsByNameAndId(productSpecCharDTO.getName(), productSpecCharDTO.getId()) > 0) {
+            throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product spec char code value: " + productSpecCharDTO.getName());
         }
 //check duplicate code product spec char value
-        checkDuplicateCode(productSpecCharValues);
-        List<Long> oldProductCharValueId = productSpecCharValues.stream().filter(item -> item.getId() != null).map(item->
+        checkDuplicateValue(productSpecCharValues);
+        List<Long> oldProductCharValueId = productSpecCharValues.stream().filter(item -> item.getId() != null).map(item ->
                 item.getId()).collect(Collectors.toList());
 //save map from input productSpecCharDTO to ProductSpecChar
         ProductSpecChar productSpecChar = modelMapper.map(productSpecCharDTO, ProductSpecChar.class);
@@ -80,12 +80,12 @@ public class ProductSpecCharService {
                     return modelMapper.map(productSpecCharValueDTO, ProductSpecCharValue.class);
                 }).collect(Collectors.toList());
 //check duplicate code product spec char
-        if (productCharRepository.existsByCodeAndId(productSpecCharDTO.getCode(), productSpecCharDTO.getId()) > 0) {
-            throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product spec char code value: " + productSpecCharDTO.getCode());
+        if (productCharRepository.existsByNameAndId(productSpecCharDTO.getName(), productSpecCharDTO.getId()) > 0) {
+            throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product spec char code value: " + productSpecCharDTO.getName());
         }
 
-//check duplicate code product spec char value
-        checkDuplicateCode(productSpecCharValues);
+//check duplicate Value product spec char value
+        checkDuplicateValue(productSpecCharValues);
 //save map from input productSpecCharDTO to ProductSpecChar
         ProductSpecChar productSpecChar = modelMapper.map(productSpecCharDTO, ProductSpecChar.class);
 //        if (productSpecChar.getCreateDatetime() == null) {
@@ -144,54 +144,49 @@ public class ProductSpecCharService {
 
     }
 
-    public boolean checkDuplicateCode(List<ProductSpecCharValue> productSpecCharValues) {
+    public boolean checkDuplicateValue(List<ProductSpecCharValue> productSpecCharValues) {
         // Create a HashMap to store encountered codes
         HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();
 
         for (ProductSpecCharValue productSpecCharValue : productSpecCharValues) {
-            // Check if the code already exists in the HashMap
-            if (codeToProductSpecCharValue.containsKey(productSpecCharValue.getCode())) {
-                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code product spec value: " + productSpecCharValue.getCode());
+            // Check if the Value already exists in the HashMap
+            if (codeToProductSpecCharValue.containsKey(productSpecCharValue.getValue())) {
+                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code product spec value: " + productSpecCharValue.getValue());
             }
 
-            // Check if the code already exists in the database
-            if (productCharValueRepository.existsByCodeAndId(productSpecCharValue.getCode(), productSpecCharValue.getId()) > 0) {
-                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code product spec value: " + productSpecCharValue.getCode());
+            // Check if the Value already exists in the database
+            if (productCharValueRepository.existsByValueAndId(productSpecCharValue.getValue(), productSpecCharValue.getId()) > 0) {
+                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code product spec value: " + productSpecCharValue.getValue());
             }
 
             // Add the code to the HashMap
-            codeToProductSpecCharValue.put(productSpecCharValue.getCode(), productSpecCharValue);
+            codeToProductSpecCharValue.put(productSpecCharValue.getValue(), productSpecCharValue);
         }
 
         return true;
     }
 
-    public boolean checkDuplicateCodeUpdate(List<ProductSpecCharValue> productSpecCharValues) {
-        // Create a HashMap to store encountered codes
-        HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();
-
-        for (ProductSpecCharValue productSpecCharValue : productSpecCharValues) {
-            // Check if the code already exists in the HashMap
-            if (codeToProductSpecCharValue.containsKey(productSpecCharValue.getCode())) {
-                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getCode());
-            }
-
-            // Check if the code already exists in the database
-//            if (productSpecCharValue.getId() != null) {
-//                if (productCharValueRepository.existsByCodeAndId(productSpecCharValue.getCode(), productSpecCharValue.getId())) {
-//                    throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getCode());
-//                }
+//    public boolean checkDuplicateCodeUpdate(List<ProductSpecCharValue> productSpecCharValues) {
+//        // Create a HashMap to store encountered codes
+//        HashMap<String, ProductSpecCharValue> codeToProductSpecCharValue = new HashMap<>();
+//
+//        for (ProductSpecCharValue productSpecCharValue : productSpecCharValues) {
+//            // Check if the code already exists in the HashMap
+//            if (codeToProductSpecCharValue.containsKey(productSpecCharValue.getValue())) {
+//                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getValue());
 //            }
-            if (productCharValueRepository.existsByCodeAndId(productSpecCharValue.getCode(), productSpecCharValue.getId()) > 0) {
-                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getCode());
-            }
-
-            // Add the code to the HashMap
-            codeToProductSpecCharValue.put(productSpecCharValue.getCode(), productSpecCharValue);
-        }
-
-        return true;
-    }
+//
+//
+//            if (productCharValueRepository.existsByValueAndId(productSpecCharValue.getValue(), productSpecCharValue.getId()) > 0) {
+//                throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate code value: " + productSpecCharValue.getValue());
+//            }
+//
+//            // Add the code to the HashMap
+//            codeToProductSpecCharValue.put(productSpecCharValue.getValue(), productSpecCharValue);
+//        }
+//
+//        return true;
+//    }
 
 
 }

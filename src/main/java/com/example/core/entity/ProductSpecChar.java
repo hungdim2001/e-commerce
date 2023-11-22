@@ -16,8 +16,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ProductSpecChar extends AuditTable implements Serializable {
 
-    @Column(name = "CODE")
-    private String code;
+//    @Column(name = "CODE")
+//    private String code;
     @Column(name = "NAME")
     private String name;
 }
