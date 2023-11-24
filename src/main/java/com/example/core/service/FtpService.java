@@ -18,27 +18,55 @@ import java.io.*;
 @Data
 public class FtpService implements CommandLineRunner, ApplicationListener<ContextClosedEvent> {
     @Value("${ftp.host}")
-    private  String SERVER_ADDRESS ;
+    private String SERVER_ADDRESS;
     @Value("${ftp.port}")
-    private  int SERVER_PORT;
+    private int SERVER_PORT;
     @Value("${ftp.timeout}")
-    private  int FTP_TIMEOUT ;
+    private int FTP_TIMEOUT;
     @Value("${ftp.username}")
-    private  String USERNAME ;
+    private String USERNAME;
     @Value("${ftp.password}")
-    private String PASSWORD ;
-
-    String remoteDirPath = "/home/hungdz/ftp"; // Đường dẫn tới thư mục trên FTP
+    private String PASSWORD;
+    @Value("${ftp.remoteDirPath}")
+    String remoteDirPath; // Đường dẫn tới thư mục trên FTP
 
     private FTPClient ftpClient;
     private int reply;
     String ftpPath;
 
-    public void uploadFile(MultipartFile file, String fileName) throws IOException {
-        connectFTPServer();
+    public boolean uploadFile(String folder, MultipartFile file, String fileName) throws IOException {
+        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
+        if (!successChangeWorkingDirectory) {
+            // Directory doesn't exist, try creating it
+            boolean created = ftpClient.makeDirectory(remoteDirPath+folder);
+            if (created) {
+                System.out.println("Directory created successfully: " + remoteDirPath+folder);
+                ftpClient.changeWorkingDirectory(remoteDirPath+folder); // Change to newly created directory
+            } else {
+                System.out.println("Failed to create directory: " + remoteDirPath+folder);
+            }
+        } else {
+            System.out.println("Directory exists: " + remoteDirPath+folder);
+        }
         System.out.println("ftpPath: " + ftpPath + fileName);
         InputStream inputStream = file.getInputStream();
-        boolean success = ftpClient.storeFile(fileName, inputStream);
+      return ftpClient.storeFile(fileName, inputStream);
+    }
+    public boolean deleteFile(String folder, String fileName) throws IOException {
+        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
+        if (!successChangeWorkingDirectory) {
+            // Directory doesn't exist, try creating it
+            boolean created = ftpClient.makeDirectory(remoteDirPath+folder);
+            if (created) {
+                System.out.println("Directory created successfully: " + remoteDirPath+folder);
+                ftpClient.changeWorkingDirectory(remoteDirPath+folder); // Change to newly created directory
+            } else {
+                System.out.println("Failed to create directory: " + remoteDirPath+folder);
+            }
+        } else {
+            System.out.println("Directory exists: " + remoteDirPath+folder);
+        }
+        return ftpClient.deleteFile(fileName);
     }
 
     public byte[] retrieveFile(String fileName) throws IOException {
@@ -56,11 +84,18 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
             System.out.println("connecting ftp server...");
             ftpClient.connect(SERVER_ADDRESS, SERVER_PORT);
             ftpClient.login(USERNAME, PASSWORD);
-            boolean changeDirSuccess = ftpClient.changeWorkingDirectory(remoteDirPath);
-            if (changeDirSuccess) {
-                System.out.println("Changed working directory to: " + remoteDirPath);
+            boolean success = ftpClient.changeWorkingDirectory(remoteDirPath);
+            if (!success) {
+                // Directory doesn't exist, try creating it
+                boolean created = ftpClient.makeDirectory(remoteDirPath);
+                if (created) {
+                    System.out.println("Directory created successfully: " + remoteDirPath);
+                    ftpClient.changeWorkingDirectory(remoteDirPath); // Change to newly created directory
+                } else {
+                    System.out.println("Failed to create directory: " + remoteDirPath);
+                }
             } else {
-                System.out.println("Failed to change working directory.");
+                System.out.println("Directory exists: " + remoteDirPath);
             }
             ftpClient.enterLocalPassiveMode();
             reply = ftpClient.getReplyCode();

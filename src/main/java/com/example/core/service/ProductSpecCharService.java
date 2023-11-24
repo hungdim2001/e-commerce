@@ -11,6 +11,7 @@ import com.example.core.exceptions.DuplicateException;
 import com.example.core.repository.ProductCharRepository;
 import com.example.core.repository.ProductCharUseRepository;
 import com.example.core.repository.ProductCharValueRepository;
+import com.example.core.util.UserUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,7 +64,7 @@ public class ProductSpecCharService {
         List<ProductSpecCharUse> productSpecCharUses = productSpecCharValueDTOS.stream().filter(item -> !oldProductCharValueId.contains(item.getId())).
                 map(productSpecCharValueDTO -> ProductSpecCharUse.builder().productSpecCharID(result.getId()).
                         productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
-                        createDatetime(new Date()).createUser(productSpecCharValueDTO.getCreateUser()).build()).collect(Collectors.toList());
+                        createDatetime(new Date()).createUser(UserUtil.getUserId()).build()).collect(Collectors.toList());
         productCharUseRepository.saveAll(productSpecCharUses);
         result.setProductSpecCharValueDTOS(productSpecCharValueDTOS);
         return result;
@@ -102,7 +103,7 @@ public class ProductSpecCharService {
         List<ProductSpecCharUse> productSpecCharUses = productSpecCharValueDTOS.stream().
                 map(productSpecCharValueDTO -> ProductSpecCharUse.builder().productSpecCharID(result.getId()).
                         productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
-                        createDatetime(new Date()).createUser(productSpecCharValueDTO.getCreateUser()).build()).collect(Collectors.toList());
+                        createDatetime(new Date()).createUser(UserUtil.getUserId()).build()).collect(Collectors.toList());
         productCharUseRepository.saveAll(productSpecCharUses);
         result.setProductSpecCharValueDTOS(productSpecCharValueDTOS);
         return result;

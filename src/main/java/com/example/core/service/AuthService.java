@@ -15,6 +15,7 @@ import com.example.core.repository.*;
 import com.example.core.security.jwt.JwtUtils;
 import com.example.core.security.jwt.TokenType;
 import com.example.core.util.BaseUtils;
+import com.example.core.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -76,7 +77,7 @@ public class AuthService {
         String code = BaseUtils.getAlphaNumericString(6);
         Code newCode = Code.builder().code(code).expiredTime(new Date().getTime() + 300000).userId(userResponse.getId()).build();
         codeRepository.save(newCode);
-        UserRole userRole = UserRole.builder().roleId(role.getId()).userId(userResponse.getId()).createDatetime(new Date()).createUser(newUser.getId()).build();
+        UserRole userRole = UserRole.builder().roleId(role.getId()).userId(userResponse.getId()).createDatetime(new Date()).createUser(UserUtil.getUserId()).build();
         userRoleRepo.save(userRole);
 
         try {

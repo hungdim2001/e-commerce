@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,16 +30,11 @@ public class ProductTypeController {
 
     @Transactional(rollbackOn = Exception.class)
     @ApiOperation(value = "create")
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @RequestMapping(path = "", method = POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @CrossOrigin
-    public ResponseEntity create(@RequestParam("id")
-                                 long id,
-                                 @RequestParam("name")
-                                 String name,
-                                 @RequestParam("icon")
-                                 MultipartFile icon) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create new product type successfully", productTypeService.create(id,name, icon)));
+    public ResponseEntity create(@Nullable @RequestParam("id") Long id, @Nullable @RequestParam("name") String name, @Nullable @RequestParam("description") String description, @Nullable @RequestParam("status") Boolean status, @Nullable @RequestParam("icon") MultipartFile icon) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create/Update product type successfully", productTypeService.create(id, name, description, status, icon)));
 
     }
 }
