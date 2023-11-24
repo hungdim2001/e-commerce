@@ -17,11 +17,11 @@ public class ProductCharValueRepositoryCustomImpl implements  ProductCharValueRe
     public void delete(List<Long> ids) {
         String deletePscu = "DELETE\n" +
                 "FROM product_spec_char_uses\n" +
-                "WHERE product_spec_char_valueid IN :ids";
+                "WHERE product_spec_char_value_id IN :ids";
         String deletePscv = "DELETE pscv\n" +
                 "FROM product_spec_char_values pscv\n" +
-                "         JOIN product_spec_char_uses pscu ON pscv.id = pscu.product_spec_char_valueid\n" +
-                "WHERE pscu.product_spec_char_valueid IN :ids";
+                "         JOIN product_spec_char_uses pscu ON pscv.id = pscu.product_spec_char_value_id\n" +
+                "WHERE pscu.product_spec_char_value_id IN :ids";
 
         Query queryPscu = em.createNativeQuery(deletePscu).setParameter("ids", ids);
         Query queryPscv = em.createNativeQuery(deletePscv).setParameter("ids", ids);

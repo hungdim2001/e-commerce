@@ -45,9 +45,9 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
                         "FROM\n" +
                         "    product_spec_char_uses pscu\n" +
                         "        right   JOIN\n" +
-                        "    product_spec_char_values pscv ON pscu.product_spec_char_valueid = pscv.id\n" +
+                        "    product_spec_char_values pscv ON pscu.product_spec_char_value_id = pscv.id\n" +
                         "        right JOIN\n" +
-                        "    product_spec_chars psc ON pscu.product_spec_charid = psc.id\n");
+                        "    product_spec_chars psc ON pscu.product_spec_char_id = psc.id\n");
         if (id != null) {
             sql.append(" where psc.id = :id");
         }
@@ -98,12 +98,12 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
     @Transactional
     @Modifying
     public void delete(List<Long> ids) {
-        String deletePscu = "DELETE FROM product_spec_char_uses WHERE product_spec_charid IN :ids";
+        String deletePscu = "DELETE FROM product_spec_char_uses WHERE product_spec_char_id IN :ids";
         String deletePscv = "\n" +
                 "DELETE pscv\n" +
                 "FROM product_spec_char_values pscv\n" +
-                "         JOIN product_spec_char_uses pscu ON pscv.id = pscu.product_spec_char_valueid\n" +
-                "WHERE pscu.product_spec_charid IN :ids";
+                "         JOIN product_spec_char_uses pscu ON pscv.id = pscu.product_spec_char_value_id\n" +
+                "WHERE pscu.product_spec_char_id IN :ids";
         String deletePsc = "DELETE FROM product_spec_chars WHERE id IN :ids";
 
         Query queryPscu = em.createNativeQuery(deletePscu).setParameter("ids", ids);

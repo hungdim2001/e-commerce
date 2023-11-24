@@ -1,6 +1,7 @@
 package com.example.core.service;
 
 import com.amazonaws.util.IOUtils;
+import lombok.Data;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 
 @Service
+@Data
 public class FtpService implements CommandLineRunner, ApplicationListener<ContextClosedEvent> {
     @Value("${ftp.host}")
     private  String SERVER_ADDRESS ;
@@ -25,6 +27,9 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
     private  String USERNAME ;
     @Value("${ftp.password}")
     private String PASSWORD ;
+
+    String remoteDirPath = "/home/hungdz/ftp"; // Đường dẫn tới thư mục trên FTP
+
     private FTPClient ftpClient;
     private int reply;
     String ftpPath;
@@ -51,6 +56,12 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
             System.out.println("connecting ftp server...");
             ftpClient.connect(SERVER_ADDRESS, SERVER_PORT);
             ftpClient.login(USERNAME, PASSWORD);
+            boolean changeDirSuccess = ftpClient.changeWorkingDirectory(remoteDirPath);
+            if (changeDirSuccess) {
+                System.out.println("Changed working directory to: " + remoteDirPath);
+            } else {
+                System.out.println("Failed to change working directory.");
+            }
             ftpClient.enterLocalPassiveMode();
             reply = ftpClient.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {

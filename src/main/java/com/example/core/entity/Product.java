@@ -18,8 +18,6 @@ public class Product extends AuditTable implements Serializable {
 
     @Column(name = "PRODUCT_TYPE_ID")
     private Long productTypeId;
-    @Column(name = "PRODUCT_SPEC_ID")
-    private Long productSpecId;
     @Column(name = "NAME")
     private String name;
     @Column(name = "QUANTITY")

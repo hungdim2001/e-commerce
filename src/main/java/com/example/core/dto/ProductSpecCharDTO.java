@@ -15,6 +15,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ProductSpecCharDTO extends AuditTable {
     private String name;
-//    private String name;
     private List<ProductSpecCharValueDTO> productSpecCharValueDTOS;
 }
