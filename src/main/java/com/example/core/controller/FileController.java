@@ -2,6 +2,8 @@ package com.example.core.controller;
 
 import com.example.core.service.FtpService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
@@ -10,7 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLConnection;
 
 @RestController
@@ -34,5 +38,7 @@ public class FileController {
         return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
 
     }
+
+
 
 }
