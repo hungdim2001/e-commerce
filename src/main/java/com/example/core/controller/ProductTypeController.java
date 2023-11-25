@@ -12,7 +12,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
@@ -33,8 +35,21 @@ public class ProductTypeController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @RequestMapping(path = "", method = POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @CrossOrigin
-    public ResponseEntity create(@Nullable @RequestParam("id") Long id, @Nullable @RequestParam("name") String name, @Nullable @RequestParam("description") String description, @Nullable @RequestParam("status") Boolean status, @Nullable @RequestParam("icon") MultipartFile icon) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create/Update product type successfully", productTypeService.create(id, name, description, status, icon)));
+    public ResponseEntity create(HttpServletRequest request, @Nullable @RequestParam("id") Long id, @Nullable @RequestParam("name") String name, @Nullable @RequestParam("description") String description, @Nullable @RequestParam("status") Boolean status, @Nullable @RequestParam("icon") MultipartFile icon) throws IOException {
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create/Update product type successfully",  productTypeService.create(id, name, description, status, icon)));
+
+    }
+
+    @ApiOperation(value = "get")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("")
+    @CrossOrigin
+    public ResponseEntity get(HttpServletRequest request) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Get product type successfully", productTypeService.get(ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString())));
 
     }
 }

@@ -27,7 +27,7 @@ public class ProductSpecCharController {
     @ApiOperation(value = "Create new product spec char")
     @CrossOrigin
     public ResponseEntity create(@Valid @RequestBody ProductSpecCharDTO productSpecCharDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product spec char successfully ", productSpecCharService.create(productSpecCharDTO)));
     }
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
 //    @PostMapping(value = {""})

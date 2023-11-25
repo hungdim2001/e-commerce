@@ -125,9 +125,13 @@ public class ProductSpecCharService {
                     result.add(tmp);
                     tmp = modelMapper.map(item[0], ProductSpecCharDTO.class);
                     tmpValue = new ArrayList<>();
-                    tmpValue.add(specCharValueDTO);
+                    if (specCharValueDTO.getId() != null) {
+                        tmpValue.add(specCharValueDTO);
+                    }
                 } else {
-                    tmpValue.add(specCharValueDTO);
+                    if (specCharValueDTO.getId() != null) {
+                        tmpValue.add(specCharValueDTO);
+                    }
                 }
 
             }

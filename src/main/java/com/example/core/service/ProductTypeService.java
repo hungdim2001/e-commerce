@@ -4,16 +4,19 @@ import com.example.core.entity.ProductType;
 import com.example.core.exceptions.DuplicateException;
 import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.ProductTypeRepository;
-import com.example.core.repository.RoleRepository;
 import com.example.core.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductTypeService {
@@ -22,8 +25,17 @@ public class ProductTypeService {
     @Autowired
     private FtpService ftpService;
     @Value("${ftp.icon.folder}")
-    private String workFolder = "icon";
+    private String workFolder;
+    @Value("${api.file.endpoint}")
+    private String apiFileEndpoint;
 
+    public List<ProductType> get(String baseUrl) {
+        return productTypeRepository.findAll().stream().map(item -> {
+                    item.setIcon(baseUrl + apiFileEndpoint + workFolder + "/" + item.getIcon());
+                    return item;
+                }
+        ).collect(Collectors.toList());
+    }
 
     public ProductType create(Long id, String name, String description, boolean status, MultipartFile icon) throws IOException {
         if (productTypeRepository.existsByNameAndId(name, id) > 0) {

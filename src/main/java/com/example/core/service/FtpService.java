@@ -35,6 +35,7 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
     String ftpPath;
 
     public boolean uploadFile(String folder, MultipartFile file, String fileName) throws IOException {
+        connectFTPServer();
         boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
         if (!successChangeWorkingDirectory) {
             // Directory doesn't exist, try creating it
@@ -50,9 +51,12 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
         }
         System.out.println("ftpPath: " + ftpPath + fileName);
         InputStream inputStream = file.getInputStream();
-      return ftpClient.storeFile(fileName, inputStream);
+        boolean successUpload = ftpClient.storeFile(fileName, inputStream);
+        disconnectFTPServer();
+        return successUpload;
     }
     public boolean deleteFile(String folder, String fileName) throws IOException {
+        connectFTPServer();
         boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
         if (!successChangeWorkingDirectory) {
             // Directory doesn't exist, try creating it
@@ -66,15 +70,22 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
         } else {
             System.out.println("Directory exists: " + remoteDirPath+folder);
         }
-        return ftpClient.deleteFile(fileName);
+        boolean deleteSuccess = ftpClient.deleteFile(fileName);
+        disconnectFTPServer();
+        return deleteSuccess;
     }
 
-    public byte[] retrieveFile(String fileName) throws IOException {
+    public byte[] retrieveFile(String folder,String fileName) throws IOException {
         connectFTPServer();
-        System.out.println("ftpPath: " + ftpPath + fileName);
-        InputStream inputStream = ftpClient.retrieveFileStream(ftpPath + fileName);
+        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
+        if (!successChangeWorkingDirectory) {
+            throw  new IOException("folder not exist" + folder);
+        }
+        System.out.println(ftpClient.printWorkingDirectory());
+        InputStream inputStream = ftpClient.retrieveFileStream(fileName);
         System.out.println("input Stream" + inputStream);
         byte[] fileContent = IOUtils.toByteArray(inputStream);
+        disconnectFTPServer();
         return fileContent;
     }
 
@@ -120,7 +131,7 @@ public class FtpService implements CommandLineRunner, ApplicationListener<Contex
 
     @Override
     public void run(String... args) throws Exception {
-        connectFTPServer();
+//        connectFTPServer();
     }
 
     private void disconnectFTPServer() {

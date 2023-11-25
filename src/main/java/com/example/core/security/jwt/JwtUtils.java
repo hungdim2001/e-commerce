@@ -24,7 +24,7 @@ public class JwtUtils {
 
         if (accessToken) {
             return TokenType.builder().token(Jwts.builder().setSubject((id.toString())).setIssuedAt(new Date())
-                    .setExpiration(new Date((new Date()).getTime() + rJwtExpirationMs)).signWith(SignatureAlgorithm.HS512, jwtSecret)
+                    .setExpiration(new Date((new Date()).getTime() + aJwtExpirationMs)).signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact()).expiresIn(new Date((new Date()).getTime() + aJwtExpirationMs).getTime()).build();
         }
         //              .setExpiration(new Date((new Date()).getTime() + 60000)).signWith(SignatureAlgorithm.HS512, jwtSecret)

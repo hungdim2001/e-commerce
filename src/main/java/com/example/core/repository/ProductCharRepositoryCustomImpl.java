@@ -71,7 +71,7 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
 //                    .name(row[8] != null ? (String) row[8] : null)
                     .build();
             ProductSpecCharValueDTO productSpecCharValueDTO = new ProductSpecCharValueDTO();
-            if (row[9] != null) {
+            if (row[8] != null) {
                 productSpecCharValueDTO = ProductSpecCharValueDTO.builder()
                         .id(((BigInteger) row[8]).longValue())
                         .createDatetime(row[9] != null ? (Date) row[10] : null)
