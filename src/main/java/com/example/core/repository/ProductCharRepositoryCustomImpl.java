@@ -74,13 +74,13 @@ public class ProductCharRepositoryCustomImpl implements ProductCharRepositoryCus
             if (row[8] != null) {
                 productSpecCharValueDTO = ProductSpecCharValueDTO.builder()
                         .id(((BigInteger) row[8]).longValue())
-                        .createDatetime(row[9] != null ? (Date) row[10] : null)
-                        .updateDatetime(row[10] != null ? (Date) row[11] : null)
-                        .createUser(row[11] != null ? ((BigInteger) row[12]).longValue() : null)
-                        .updateUser(row[12] != null ? ((BigInteger) row[13]).longValue() : null)
-                        .status(row[13] != null ? (Boolean) row[14] : null)
-                        .description(row[14] != null ? (String) row[15] : null)
-                        .value(row[15] != null ? (String) row[16] : null)
+                        .createDatetime(row[9] != null ? (Date) row[9] : null)
+                        .updateDatetime(row[10] != null ? (Date) row[10] : null)
+                        .createUser(row[11] != null ? ((BigInteger) row[11]).longValue() : null)
+                        .updateUser(row[12] != null ? ((BigInteger) row[12]).longValue() : null)
+                        .status(row[13] != null ? (Boolean) row[13] : null)
+                        .description(row[14] != null ? (String) row[14] : null)
+                        .value(row[15] != null ? (String) row[15] : null)
 //                        .value(row[17] != null ? (String) row[17] : null)
                         .build();
 
