@@ -37,7 +37,7 @@ public class ProductTypeService {
         ).collect(Collectors.toList());
     }
 
-    public ProductType create(Long id, String name, String description, boolean status, MultipartFile icon) throws IOException {
+    public ProductType create(Long id, String name, String description, boolean status, MultipartFile icon) throws Exception {
         if (productTypeRepository.existsByNameAndId(name, id) > 0) {
             throw new DuplicateException(HttpStatus.CONFLICT, "Duplicate product type: " + name);
         }
@@ -47,13 +47,15 @@ public class ProductTypeService {
                     () -> new NotFoundException(HttpStatus.NOT_FOUND, "not found product type with id: " + id)
             );
             //delete old icon
-            ftpService.deleteFile(workFolder, oldProductType.getIcon());
-            String fileName = System.currentTimeMillis() + icon.getOriginalFilename();
-            boolean upFileSuccess = ftpService.uploadFile(workFolder, icon, fileName);
-            if (!upFileSuccess) {
-                throw new IOException("cant not upload icon file ");
+            if (icon != null) {
+                ftpService.deleteFile(workFolder, oldProductType.getIcon());
+                String fileName = System.currentTimeMillis() + icon.getOriginalFilename();
+                boolean upFileSuccess = ftpService.uploadFile(workFolder, icon, fileName);
+                if (!upFileSuccess) {
+                    throw new IOException("cant not upload icon file ");
+                }
+                oldProductType.setIcon(fileName);
             }
-            oldProductType.setIcon(fileName);
             oldProductType.setUpdateDatetime(new Date());
             oldProductType.setUpdateUser(UserUtil.getUserId());
             oldProductType.setName(name);
@@ -71,5 +73,18 @@ public class ProductTypeService {
                 .build();
         return productTypeRepository.save(productType);
 
+    }
+
+    public void delete(List<Long> ids) throws Exception {
+        List<ProductType> productTypes = productTypeRepository.findByIds(ids);
+
+        productTypes.stream().forEach(item -> {
+            try {
+                ftpService.deleteFile(workFolder, item.getIcon());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        productTypeRepository.delete(ids);
     }
 }

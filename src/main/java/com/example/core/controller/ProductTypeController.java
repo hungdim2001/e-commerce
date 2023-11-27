@@ -35,11 +35,23 @@ public class ProductTypeController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @RequestMapping(path = "", method = POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @CrossOrigin
-    public ResponseEntity create(HttpServletRequest request, @Nullable @RequestParam("id") Long id, @Nullable @RequestParam("name") String name, @Nullable @RequestParam("description") String description, @Nullable @RequestParam("status") Boolean status, @Nullable @RequestParam("icon") MultipartFile icon) throws IOException {
+    public ResponseEntity create(@Nullable @RequestParam("id") Long id, @Nullable @RequestParam("name") String name, @Nullable @RequestParam("description") String description, @Nullable @RequestParam("status") Boolean status, @Nullable @RequestParam("icon") MultipartFile icon) throws Exception {
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Create/Update product type successfully",  productTypeService.create(id, name, description, status, icon)));
 
     }
+
+    @Transactional(rollbackOn = Exception.class)
+    @ApiOperation(value = "delete")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @DeleteMapping(path = "")
+    @CrossOrigin
+    public ResponseEntity delete(@RequestBody List<Long> ids) throws Exception {
+        productTypeService.delete(ids);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Delete product type successfully", null));
+
+    }
+
 
     @ApiOperation(value = "get")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")

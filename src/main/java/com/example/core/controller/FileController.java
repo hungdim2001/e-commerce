@@ -26,7 +26,7 @@ public class FileController {
     FtpService ftpService;
     @GetMapping("{folder}/{fileName}")
     @CrossOrigin
-    public ResponseEntity<byte[]> getFile(@PathVariable String folder,@PathVariable String fileName) throws  IOException {
+    public ResponseEntity<byte[]> getFile(@PathVariable String folder,@PathVariable String fileName) throws Exception {
         byte[] fileContent = ftpService.retrieveFile(folder,fileName);
         String contentType = URLConnection.guessContentTypeFromName(fileName);
         if (contentType == null) {

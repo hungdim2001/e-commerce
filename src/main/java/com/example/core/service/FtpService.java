@@ -1,10 +1,12 @@
 package com.example.core.service;
 
 import com.amazonaws.util.IOUtils;
+import com.example.core.util.FTPUtils;
 import lombok.Data;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationListener;
@@ -15,146 +17,75 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 
 @Service
-@Data
-public class FtpService implements CommandLineRunner, ApplicationListener<ContextClosedEvent> {
-    @Value("${ftp.host}")
-    private String SERVER_ADDRESS;
-    @Value("${ftp.port}")
-    private int SERVER_PORT;
-    @Value("${ftp.timeout}")
-    private int FTP_TIMEOUT;
-    @Value("${ftp.username}")
-    private String USERNAME;
-    @Value("${ftp.password}")
-    private String PASSWORD;
+public class FtpService {
     @Value("${ftp.remoteDirPath}")
     String remoteDirPath; // Đường dẫn tới thư mục trên FTP
+    @Autowired(required = false)
+    FTPUtils ftpUtils;
 
-    private FTPClient ftpClient;
-    private int reply;
-    String ftpPath;
-
-    public boolean uploadFile(String folder, MultipartFile file, String fileName) throws IOException {
-        connectFTPServer();
-        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
+    public boolean uploadFile(String folder, MultipartFile file, String fileName) throws Exception {
+        FTPClient ftpClient  = ftpUtils.getFtpClient();
+        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath + folder);
         if (!successChangeWorkingDirectory) {
             // Directory doesn't exist, try creating it
-            boolean created = ftpClient.makeDirectory(remoteDirPath+folder);
+            boolean created = ftpClient.makeDirectory(remoteDirPath + folder);
             if (created) {
-                System.out.println("Directory created successfully: " + remoteDirPath+folder);
-                ftpClient.changeWorkingDirectory(remoteDirPath+folder); // Change to newly created directory
+                System.out.println("Directory created successfully: " + remoteDirPath + folder);
+                ftpClient.changeWorkingDirectory(remoteDirPath + folder); // Change to newly created directory
             } else {
-                System.out.println("Failed to create directory: " + remoteDirPath+folder);
+                System.out.println("Failed to create directory: " + remoteDirPath + folder);
             }
         } else {
-            System.out.println("Directory exists: " + remoteDirPath+folder);
+            System.out.println("Directory exists: " + remoteDirPath + folder);
         }
-        System.out.println("ftpPath: " + ftpPath + fileName);
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         InputStream inputStream = file.getInputStream();
         boolean successUpload = ftpClient.storeFile(fileName, inputStream);
         return successUpload;
     }
-    public boolean deleteFile(String folder, String fileName) throws IOException {
-        connectFTPServer();
-        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath+folder);
+
+    public boolean deleteFile(String folder, String fileName) throws Exception {
+        FTPClient ftpClient  = ftpUtils.getFtpClient();
+        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath + folder);
         if (!successChangeWorkingDirectory) {
             // Directory doesn't exist, try creating it
-            boolean created = ftpClient.makeDirectory(remoteDirPath+folder);
+            boolean created = ftpClient.makeDirectory(remoteDirPath + folder);
             if (created) {
-                System.out.println("Directory created successfully: " + remoteDirPath+folder);
-                ftpClient.changeWorkingDirectory(remoteDirPath+folder); // Change to newly created directory
+                System.out.println("Directory created successfully: " + remoteDirPath + folder);
+                ftpClient.changeWorkingDirectory(remoteDirPath + folder); // Change to newly created directory
             } else {
-                System.out.println("Failed to create directory: " + remoteDirPath+folder);
+                System.out.println("Failed to create directory: " + remoteDirPath + folder);
             }
         } else {
-            System.out.println("Directory exists: " + remoteDirPath+folder);
+            System.out.println("Directory exists: " + remoteDirPath + folder);
         }
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         boolean deleteSuccess = ftpClient.deleteFile(fileName);
         return deleteSuccess;
     }
 
-    public byte[] retrieveFile(String folder, String fileName) throws IOException {
-        connectFTPServer();
-        boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath + folder);
-        if (!successChangeWorkingDirectory) {
-            throw new IOException("Folder does not exist: " + folder);
-        }
-
-        System.out.println(ftpClient.printWorkingDirectory());
-        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-        InputStream inputStream = ftpClient.retrieveFileStream(fileName);
-        if (inputStream == null) {
-            throw new  IOException("Could not retrieve file: " + fileName);
-        }
-
-        System.out.println("Input Stream: " + inputStream);
-        byte[] fileContent;
-        try {
-
-            fileContent = IOUtils.toByteArray(inputStream);
-        } finally {
-            inputStream.close(); // Đóng luồng sau khi sử dụng
-            ftpClient.completePendingCommand(); // Hoàn tất lệnh FTP trước khi ngắt kết nối
-        }
-
-        return fileContent;
-    }
-
-
-    private void connectFTPServer() throws IOException {
-        ftpClient = new FTPClient();
-        try {
-            System.out.println("connecting ftp server...");
-            ftpClient.connect(SERVER_ADDRESS);
-            ftpClient.login(USERNAME, PASSWORD);
-            ftpClient.enterLocalPassiveMode();
-            reply = ftpClient.getReplyCode();
-            if (!FTPReply.isPositiveCompletion(reply)) {
-                ftpClient.disconnect();
-                throw new IOException("FTP server not respond!");
-            } else {
-                boolean success = ftpClient.changeWorkingDirectory(remoteDirPath);
-                if (!success) {
-                    boolean created = ftpClient.makeDirectory(remoteDirPath);
-                    if (created) {
-                        System.out.println("Directory created successfully: " + remoteDirPath);
-                        ftpClient.changeWorkingDirectory(remoteDirPath); // Change to newly created directory
-                    } else {
-                        System.out.println("Failed to create directory: " + remoteDirPath);
-                    }
-                } else {
-                    System.out.println("Directory exists: " + remoteDirPath);
-                }
-                System.out.println("connected");
-                ftpPath = ftpClient.printWorkingDirectory();
+        public byte[] retrieveFile(String folder, String fileName) throws Exception {
+            FTPClient ftpClient  = ftpUtils.getFtpClient();
+            boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath + folder);
+            if (!successChangeWorkingDirectory) {
+                throw new IOException("Folder does not exist: " + folder);
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
 
-        @Override
-    public void onApplicationEvent(ContextClosedEvent event) {
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+            InputStream inputStream = ftpClient.retrieveFileStream(fileName);
+            if (inputStream == null) {
+                throw new IOException("Could not retrieve file: " + fileName);
+            }
 
-//        disconnectFTPServer();
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-//        connectFTPServer();
-    }
-
-    private void disconnectFTPServer() {
-        if (ftpClient != null && ftpClient.isConnected()) {
+            byte[] fileContent;
             try {
-                ftpClient.logout();
-                ftpClient.disconnect();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                fileContent = IOUtils.toByteArray(inputStream);
+            } finally {
+                inputStream.close(); // Đóng luồng sau khi sử dụng
+                ftpClient.completePendingCommand(); // Hoàn tất lệnh FTP trước khi ngắt kết nối
             }
-        }
-    }
 
+            return fileContent;
+        }
 }
+
