@@ -11,6 +11,13 @@ public interface ProductCharValueRepository extends JpaRepository<ProductSpecCha
 //    boolean existsByCode(String code);
 
 
-    @Query(value = "select COUNT(*)  from product_spec_char_values where value = ?1 and (?2 IS NULL OR id != ?2)",nativeQuery = true)
-    int existsByValueAndId(String value, Long id);
+    @Query(value = "SELECT count(*)\n" +
+            "       FROM product_spec_char_values pscv,\n" +
+            "     product_spec_chars psc,\n" +
+            "     product_spec_char_uses pscu\n" +
+            "where pscv.id = pscu.product_spec_char_value_id\n" +
+            "  and pscu.product_spec_char_id = psc.id\n" +
+            "  and( ?2 is not null and psc.id = ?2\n" +
+            "  and pscv.value = ?1) and (?3 is not null and  pscv.id !=  ?3)",nativeQuery = true)
+    int existsByValueAndId(String value, Long charId, Long charValueId);
 }

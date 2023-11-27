@@ -1,5 +1,6 @@
 package com.example.core.controller;
 
+import com.example.core.dto.CheckDuplicateCharValue;
 import com.example.core.dto.ProductSpecCharDTO;
 import com.example.core.helper.ResponseObj;
 import com.example.core.service.ProductSpecCharService;
@@ -21,12 +22,12 @@ public class ProductSpecCharValueController {
     @Autowired
     ProductSpecCharValueService productSpecCharValueService;
 
-    @PostMapping(value = {"/{code}"})
+    @PostMapping(value = {""})
     @ApiOperation(value = "check duplicate  spec char value code")
     @CrossOrigin
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity check(@PathVariable(required = true) String code) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "check duplicate  spec char value code successfully", productSpecCharValueService.checkProductCharValueByCodeAndID(code,null)));
+    public ResponseEntity check(@RequestBody CheckDuplicateCharValue object) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "check duplicate  spec char value code successfully", productSpecCharValueService.checkProductCharValueByCodeAndID(object.getValue(),object.getProductSpecCharId(), object.getCharValueId())));
 
     }
     @DeleteMapping(value = {""})
