@@ -16,4 +16,9 @@ import java.util.Date;
 public class Role extends AuditTable implements Serializable {
 
     private String role;
+    /*
+    * INSERT INTO roles (role)
+VALUES ('ADMIN');
+    *
+    * */
 }
