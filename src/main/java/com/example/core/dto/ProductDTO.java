@@ -1,17 +1,17 @@
 package com.example.core.dto;
 
 import com.example.core.entity.AuditTable;
-import com.example.core.entity.ProductSpecChar;
+import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Column;
 import java.util.List;
-
+@Data
 public class ProductDTO extends AuditTable {
     private Long productTypeId;
     private String name;
     private String quantity;
     private String thumbnail;
-    private String price;
-    private String code;
+    private List<String> images;
+    private Long price;
     private List<ProductSpecCharDTO> productSpecChars;
 }

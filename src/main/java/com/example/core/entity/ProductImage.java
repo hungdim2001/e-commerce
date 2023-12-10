@@ -17,6 +17,6 @@ public class ProductImage extends AuditTable implements Serializable {
 
     @Column(name ="PRODUCT_ID")
     private Long productId;
-    @Column(name ="FILE_ID")
-    private Long fileID;
+    @Column(name ="IMAGE")
+    private String image;
 }

@@ -19,8 +19,7 @@ import java.io.Serializable;
 public class ProductCharUse  extends AuditTable implements Serializable {
     @Column(name = "PRODUCT_ID")
     private Long productId;
-    @Column(name = "PRODUCT_SPEC_CHAR_VALUE_ID")
-    private Long productSpecCharValueID;
-    @Column(name = "PRODUCT_SPEC_CHAR_ID")
-    private Long productSpecCharID;
+    @Column(name = "PRODUCT_SPEC_CHAR_USE_ID")
+    private Long productSpecCharUseId;
+
 }

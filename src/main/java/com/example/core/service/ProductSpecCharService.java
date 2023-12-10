@@ -11,6 +11,7 @@ import com.example.core.exceptions.DuplicateException;
 import com.example.core.repository.ProductCharRepository;
 import com.example.core.repository.ProductCharUseRepository;
 import com.example.core.repository.ProductCharValueRepository;
+import com.example.core.repository.ProductSpecCharUseRepository;
 import com.example.core.util.UserUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class ProductSpecCharService {
     @Autowired
     ProductCharValueRepository productCharValueRepository;
     @Autowired
-    ProductCharUseRepository productCharUseRepository;
+    ProductSpecCharUseRepository productSpecCharUseRepository;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -65,7 +66,7 @@ public class ProductSpecCharService {
                 map(productSpecCharValueDTO -> ProductSpecCharUse.builder().productSpecCharID(result.getId()).
                         productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
                         createDatetime(new Date()).createUser(UserUtil.getUserId()).build()).collect(Collectors.toList());
-        productCharUseRepository.saveAll(productSpecCharUses);
+        productSpecCharUseRepository.saveAll(productSpecCharUses);
         result.setProductSpecCharValueDTOS(productSpecCharValueDTOS);
         return result;
     }
@@ -104,7 +105,7 @@ public class ProductSpecCharService {
                 map(productSpecCharValueDTO -> ProductSpecCharUse.builder().productSpecCharID(result.getId()).
                         productSpecCharValueID(productSpecCharValueDTO.getId()).status(true).
                         createDatetime(new Date()).createUser(UserUtil.getUserId()).build()).collect(Collectors.toList());
-        productCharUseRepository.saveAll(productSpecCharUses);
+        productSpecCharUseRepository.saveAll(productSpecCharUses);
         result.setProductSpecCharValueDTOS(productSpecCharValueDTOS);
         return result;
     }

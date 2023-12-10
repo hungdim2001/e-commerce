@@ -137,8 +137,12 @@ public class Utils {
 
 		return preYear;
     }
+    public static boolean isNull(Object value) {
+        return value == null;
+    }
 
-   /* public static String getCellValue(Workbook workbook, Row row, int cellNum) {
+
+    /* public static String getCellValue(Workbook workbook, Row row, int cellNum) {
         String object = "";
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
         if (row != null) {

@@ -21,11 +21,9 @@ public class Product extends AuditTable implements Serializable {
     @Column(name = "NAME")
     private String name;
     @Column(name = "QUANTITY")
-    private String quantity;
+    private Long quantity;
     @Column(name = "THUMBNAIL")
     private String thumbnail;
     @Column(name = "PRICE")
-    private String price;
-    @Column(name = "CODE")
-    private String code;
+    private Long price;
 }
