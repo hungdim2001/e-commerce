@@ -22,6 +22,9 @@ public class Utils {
         c.add(Calendar.YEAR, warranty);
         return c.getTime();
     }
+    public static boolean isListEmpty(List<?> myList) {
+        return myList.isEmpty();
+    }
 
     public static String getProperty(Object object) {
 

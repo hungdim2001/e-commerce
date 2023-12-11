@@ -53,14 +53,13 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, Arrays.asList(images), productTypeId, name, quantity, price, status, description, productCharValuesObj)));
     }
     @ApiOperation(value = "get")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @GetMapping("")
+    @GetMapping(value = {"","/{id}"})
     @CrossOrigin
-    public ResponseEntity get(HttpServletRequest request) throws IOException {
+    public ResponseEntity get(HttpServletRequest request,@PathVariable(required = false) Long id) throws IOException {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Get product type successfully", productService.get(ServletUriComponentsBuilder.fromRequestUri(request)
                 .replacePath(null)
                 .build()
-                .toUriString())));
+                .toUriString(), id)));
 
     }
 }

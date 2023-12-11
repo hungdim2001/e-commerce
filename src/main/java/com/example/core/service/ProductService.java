@@ -8,6 +8,7 @@ import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.*;
 import com.example.core.util.UserUtil;
 import com.example.core.util.Utils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -42,6 +44,11 @@ public class ProductService {
     private String imagesFolder;
     @Value("${ftp.product.thumbnail}")
     private String thumbnailFolder;
+    @Value("${api.file.endpoint}")
+    private String apiFileEndpoint;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     public ProductDTO create(Long id,
                              MultipartFile thumbnail,
@@ -107,7 +114,7 @@ public class ProductService {
         }
         // save char value
         List<ProductCharUse> productCharUses = new ArrayList<>();
-        productCharValues.forEach(charValue->{
+        productCharValues.forEach(charValue -> {
 
             ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(charValue.getId());
             ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
@@ -119,7 +126,24 @@ public class ProductService {
         productCharUseRepository.saveAll(productCharUses);
         return null;
     }
-    public List<ProductType> get(String baseUrl) {
-    return null;
+
+    public List<Product> get(String baseUrl, Long id) {
+        //get Product
+        List<Product> resultProduct = productRepository.findByIdCus(id);
+        if (Utils.isListEmpty(resultProduct)) {
+            return null;
+        }
+        List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());
+        resultProductDTO.stream().forEach(item -> {
+            item.setProductType(productTypeRepository.getById(item.getProductTypeId()));
+            item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
+            item.setImages( productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
+            productSpecCharUseRepository.findAllById(productCharUseRepository.findByProductId(item.getId()).stream().map(charUse->
+                    charUse.getProductSpecCharUseId()).collect(Collectors.toList()));
+
+
+        });
+
+        return null;
     }
 }
