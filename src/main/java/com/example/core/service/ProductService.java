@@ -2,10 +2,7 @@ package com.example.core.service;
 
 import com.example.core.dto.ProductDTO;
 import com.example.core.dto.ProductSpecCharValueDTO;
-import com.example.core.entity.Product;
-import com.example.core.entity.ProductCharUse;
-import com.example.core.entity.ProductImage;
-import com.example.core.entity.ProductSpecCharUse;
+import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
 import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.*;
@@ -122,5 +119,7 @@ public class ProductService {
         productCharUseRepository.saveAll(productCharUses);
         return null;
     }
-
+    public List<ProductType> get(String baseUrl) {
+    return null;
+    }
 }
