@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,10 +25,17 @@ import java.net.URLConnection;
 @RequestMapping("${api.file.endpoint}")
 public class FileController {
     @Autowired
-    FtpService ftpService;
-    @GetMapping("{folder}/{fileName}")
+    private FtpService ftpService;
+    @Value("${api.file.endpoint}")
+    private String endpoint;
+    @RequestMapping(value = "**", method = RequestMethod.GET)
     @CrossOrigin
-    public ResponseEntity<byte[]> getFile(@PathVariable String folder,@PathVariable String fileName) throws Exception {
+    public ResponseEntity<byte[]> getFile(HttpServletRequest request) throws Exception {
+
+        String folderPath  = request.getRequestURL().toString().split(endpoint)[1];
+        String[] pathSegments = folderPath.split("/");
+        String fileName = pathSegments[pathSegments.length - 1]; // Last segment is the file name
+        String folder = folderPath.substring(0, folderPath.length() - fileName.length() - 1); // Extracting folder path
         byte[] fileContent = ftpService.retrieveFile(folder,fileName);
         String contentType = URLConnection.guessContentTypeFromName(fileName);
         if (contentType == null) {
@@ -36,7 +45,6 @@ public class FileController {
         headers.setContentType(MediaType.parseMediaType(contentType));
         headers.setContentDisposition(ContentDisposition.inline().filename(fileName).build());
         return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
-
     }
 
 

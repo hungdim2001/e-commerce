@@ -136,8 +136,7 @@ public class ProductService {
         List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());
 
         resultProductDTO.stream().forEach(item -> {
-            ProductType productTye = productTypeRepository.getById(item.getProductTypeId());
-            item.setProductType(productTypeRepository.getById(item.getProductTypeId()));
+            item.setProductType(productTypeRepository.findById(item.getProductTypeId()).get());
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
             item.setImages(productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
             List<ProductSpecCharUse> productSpecCharUses = productSpecCharUseRepository.findByIds(
