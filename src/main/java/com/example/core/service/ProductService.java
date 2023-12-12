@@ -1,6 +1,7 @@
 package com.example.core.service;
 
 import com.example.core.dto.ProductDTO;
+import com.example.core.dto.ProductSpecCharDTO;
 import com.example.core.dto.ProductSpecCharValueDTO;
 import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
@@ -8,6 +9,7 @@ import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.*;
 import com.example.core.util.UserUtil;
 import com.example.core.util.Utils;
+import com.google.common.collect.Lists;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +31,7 @@ public class ProductService {
     private ProductCharUseRepository productCharUseRepository;
 
     @Autowired
-    private ProductCharRepository productCharRepository;
+    private ProductSpecCharRepository productSpecCharRepository;
     @Autowired
     private ProductCharValueRepository productCharValueRepository;
     @Autowired
@@ -127,23 +127,42 @@ public class ProductService {
         return null;
     }
 
-    public List<Product> get(String baseUrl, Long id) {
+    public List<ProductDTO>  get(String baseUrl, Long id) {
         //get Product
         List<Product> resultProduct = productRepository.findByIdCus(id);
         if (Utils.isListEmpty(resultProduct)) {
             return null;
         }
         List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());
+
         resultProductDTO.stream().forEach(item -> {
+            ProductType productTye = productTypeRepository.getById(item.getProductTypeId());
             item.setProductType(productTypeRepository.getById(item.getProductTypeId()));
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
-            item.setImages( productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
-            productSpecCharUseRepository.findAllById(productCharUseRepository.findByProductId(item.getId()).stream().map(charUse->
-                    charUse.getProductSpecCharUseId()).collect(Collectors.toList()));
-
+            item.setImages(productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
+            List<ProductSpecCharUse> productSpecCharUses = productSpecCharUseRepository.findByIds(
+                    productCharUseRepository.findByProductId(item.getId()).stream().map(charUse ->
+                            charUse.getProductSpecCharUseId()).collect(Collectors.toList()));
+            Map<Long, List<Long>> charUseMap = new HashMap<>();
+            productSpecCharUses.forEach(specCharUse -> {
+                if (charUseMap.containsKey(specCharUse.getProductSpecCharID())) {
+                    charUseMap.get(specCharUse.getProductSpecCharID()).add(specCharUse.getProductSpecCharValueID());
+                } else {
+                    charUseMap.put(specCharUse.getProductSpecCharID(), Lists.newArrayList(specCharUse.getProductSpecCharValueID()));
+                }
+            });
+            List<ProductSpecCharDTO>productSpecCharDTOs = new ArrayList<>();
+            charUseMap.forEach((key, value) -> {
+                ProductSpecCharDTO productSpecCharDTO = modelMapper.map(productSpecCharRepository.getById(key), ProductSpecCharDTO.class);
+                List<ProductSpecCharValueDTO> productSpecCharValueDTO = productCharValueRepository.findAllById(value).stream()
+                        .map(charValue-> modelMapper.map(charValue,ProductSpecCharValueDTO.class)).collect(Collectors.toList());
+                productSpecCharDTO.setProductSpecCharValueDTOS(productSpecCharValueDTO);
+                productSpecCharDTOs.add(productSpecCharDTO);
+            });
+            item.setProductSpecChars(productSpecCharDTOs);
 
         });
 
-        return null;
+        return resultProductDTO;
     }
 }
