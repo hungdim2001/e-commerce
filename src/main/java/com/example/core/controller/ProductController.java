@@ -47,7 +47,7 @@ public class ProductController {
                                  @NotNull @RequestParam("quantity") Long quantity,
                                  @NotNull @RequestParam("price") Long price,
                                  @NotNull @RequestParam("status") Boolean status,
-                                 @Nullable @RequestParam("description") String description,
+                                 @Nullable @RequestParam("description") MultipartFile description,
                                  @RequestParam("productCharValues") String productCharValues) throws Exception {
        List<ProductSpecCharValueDTO> productCharValuesObj  = Arrays.asList(new GsonBuilder().create().fromJson(productCharValues, ProductSpecCharValueDTO[].class));
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, Arrays.asList(images), productTypeId, name, quantity, price, status, description, productCharValuesObj)));

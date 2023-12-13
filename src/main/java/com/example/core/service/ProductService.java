@@ -58,7 +58,7 @@ public class ProductService {
                              Long quantity,
                              Long price,
                              Boolean status,
-                             String description,
+                             MultipartFile description,
                              List<ProductSpecCharValueDTO> productCharValues) throws Exception {
         // check productType nul
         if (Utils.isNull(productTypeId)) {
@@ -75,6 +75,12 @@ public class ProductService {
         if (!upFileThumbnailSuccess) {
             throw new IOException("cant not upload thumbnail file: " + thumbnail.getOriginalFilename());
         }
+        // save description
+        String descriptionName = System.currentTimeMillis() + description.getOriginalFilename();
+        boolean upFileDescriptionSuccess = ftpService.uploadFile(thumbnailFolder, description, descriptionName);
+        if (!upFileDescriptionSuccess) {
+            throw new IOException("cant not upload thumbnail file: " + description.getOriginalFilename());
+        }
         // save product
         Product productSave = productRepository.save(Product.builder().
                 productTypeId(productTypeId).
@@ -84,7 +90,7 @@ public class ProductService {
                 status(status).
                 name(name).
                 price(price).
-                description(description).
+//                description(description).
                 quantity(quantity)
                 .build());
         // save images
