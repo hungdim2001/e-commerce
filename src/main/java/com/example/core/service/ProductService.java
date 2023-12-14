@@ -44,6 +44,9 @@ public class ProductService {
     private String imagesFolder;
     @Value("${ftp.product.thumbnail}")
     private String thumbnailFolder;
+    @Value("${ftp.product.description}")
+    private String descriptionFolder;
+
     @Value("${api.file.endpoint}")
     private String apiFileEndpoint;
 
@@ -77,7 +80,7 @@ public class ProductService {
         }
         // save description
         String descriptionName = System.currentTimeMillis() + description.getOriginalFilename();
-        boolean upFileDescriptionSuccess = ftpService.uploadFile(thumbnailFolder, description, descriptionName);
+        boolean upFileDescriptionSuccess = ftpService.uploadFile(descriptionFolder, description, descriptionName);
         if (!upFileDescriptionSuccess) {
             throw new IOException("cant not upload thumbnail file: " + description.getOriginalFilename());
         }
@@ -90,7 +93,7 @@ public class ProductService {
                 status(status).
                 name(name).
                 price(price).
-//                description(description).
+                description(descriptionName).
                 quantity(quantity)
                 .build());
         // save images
@@ -144,6 +147,7 @@ public class ProductService {
         resultProductDTO.stream().forEach(item -> {
             item.setProductType(productTypeRepository.findById(item.getProductTypeId()).get());
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
+            item.setDescription(baseUrl + apiFileEndpoint + descriptionFolder + "/" + item.getDescription());
             item.setImages(productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
             List<ProductSpecCharUse> productSpecCharUses = productSpecCharUseRepository.findByIds(
                     productCharUseRepository.findByProductId(item.getId()).stream().map(charUse ->

@@ -56,7 +56,7 @@ public class ProductController {
     @GetMapping(value = {"","/{id}"})
     @CrossOrigin
     public ResponseEntity get(HttpServletRequest request,@PathVariable(required = false) Long id) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Get product type successfully", productService.get(ServletUriComponentsBuilder.fromRequestUri(request)
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Get product successfully", productService.get(ServletUriComponentsBuilder.fromRequestUri(request)
                 .replacePath(null)
                 .build()
                 .toUriString(), id)));
