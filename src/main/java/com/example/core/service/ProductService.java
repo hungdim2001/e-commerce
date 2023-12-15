@@ -3,7 +3,10 @@ package com.example.core.service;
 import com.example.core.dto.ProductDTO;
 import com.example.core.dto.ProductSpecCharDTO;
 import com.example.core.dto.ProductSpecCharValueDTO;
-import com.example.core.entity.*;
+import com.example.core.entity.Product;
+import com.example.core.entity.ProductCharUse;
+import com.example.core.entity.ProductImage;
+import com.example.core.entity.ProductSpecCharUse;
 import com.example.core.exceptions.IllegalArgumentException;
 import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.*;
@@ -18,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,7 +58,8 @@ public class ProductService {
 
     public ProductDTO create(Long id,
                              MultipartFile thumbnail,
-                             Object[] images,
+                             MultipartFile[] images,
+                             String[] oldImages,
                              Long productTypeId,
                              String name,
                              Long quantity,
@@ -67,6 +70,16 @@ public class ProductService {
         // check productType nul
         if (Utils.isNull(productTypeId)) {
             throw new IllegalArgumentException(HttpStatus.BAD_REQUEST, "product Type is null");
+        }
+        //check char value
+        if (!Utils.isNull(productCharValues)) {
+            productCharValues.stream().forEach(charValue -> {
+                //check exist product char
+                if (!productCharValueRepository.existsById(charValue.getId())) {
+                    throw new NotFoundException(HttpStatus.NOT_FOUND, "Not Found Product Char Value: " + charValue.getId());
+                }
+            })
+            ;
         }
         // check productType exist
         productTypeRepository.findById(productTypeId).orElseThrow(() ->
@@ -93,7 +106,45 @@ public class ProductService {
                 }
                 oldProduct.setDescription(descriptionName);
             }
-
+            if (!Utils.isNullOrEmpty(oldImages)) {
+                List<String> oldImageFileName = Arrays.stream(oldImages).map(Utils::getFileName).collect(Collectors.toList());
+                List<ProductImage> oldProductImages = productImageRepository.findByProductId(id);
+                List<String> deleteImages = oldProductImages.stream().map(ProductImage::getImage).filter(image -> !oldImageFileName.contains(image)).collect(Collectors.toList());
+                deleteImages.forEach(item -> {
+                    try {
+                        ftpService.deleteFile(imagesFolder, item);
+                        productImageRepository.deleteByImage(item);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
+            if (!Utils.isNullOrEmpty(images)) {
+                Arrays.asList(images).forEach((image -> {
+                    String imageName = System.currentTimeMillis() + image.getOriginalFilename();
+                    try {
+                        ftpService.uploadFile(imagesFolder, image, imageName);
+                    } catch (Exception e) {
+                        throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
+                    }
+                    productImageRepository.save(ProductImage.builder().
+                            image(imageName).
+                            productId(oldProduct.getId()).
+                            status(true).
+                            createUser(UserUtil.getUserId()).
+                            createDatetime(new Date()).build());
+                }));
+            }
+            List<ProductCharUse> productCharUses = new ArrayList<>();
+            productCharUseRepository.deleteAllByProductId(oldProduct.getId());
+            productCharValues.forEach(charValue -> {
+                ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(charValue.getId());
+                ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
+                        .productId(oldProduct.getId())
+                        .build();
+                productCharUses.add(productCharUse);
+            });
+            productCharUseRepository.saveAll(productCharUses);
             oldProduct.setUpdateDatetime(new Date());
             oldProduct.setUpdateUser(UserUtil.getUserId());
             oldProduct.setStatus(status);
@@ -101,6 +152,7 @@ public class ProductService {
             oldProduct.setProductTypeId(productTypeId);
             oldProduct.setPrice(price);
             oldProduct.setQuantity(quantity);
+            productRepository.save(oldProduct);
             return null;
         }
 //        // save thumbnail
@@ -116,61 +168,51 @@ public class ProductService {
             throw new IOException("cant not upload thumbnail file: " + description.getOriginalFilename());
         }
 //        // save product
-//        Product productSave = productRepository.save(Product.builder().
-//                productTypeId(productTypeId).
-//                createDatetime(new Date()).
-//                thumbnail(thumbnailName).
-//                createUser(UserUtil.getUserId()).
-//                status(status).
-//                name(name).
-//                price(price).
-//                description(descriptionName).
-//                quantity(quantity)
-//                .build());
+        Product productSave = productRepository.save(Product.builder().
+                productTypeId(productTypeId).
+                createDatetime(new Date()).
+                thumbnail(thumbnailName).
+                createUser(UserUtil.getUserId()).
+                status(status).
+                name(name).
+                price(price).
+                description(descriptionName).
+                quantity(quantity)
+                .build());
 //        // save images
-//        Arrays.asList(images).forEach((image -> {
-//            String imageName = System.currentTimeMillis() + image.getOriginalFilename();
-//            try {
-//                ftpService.uploadFile(imagesFolder, image, imageName);
-//            } catch (Exception e) {
-//                throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
-//            }
-//            productImageRepository.save(ProductImage.builder().
-//                    image(imageName).
-//                    productId(productSave.getId()).
-//                    status(true).
-//                    createUser(UserUtil.getUserId()).
-//                    createDatetime(new Date()).build());
-//        }));
-//        //check char value
-//        if (!Utils.isNull(productCharValues)) {
-//            productCharValues.stream().forEach(charValue -> {
-//                //check exist product char
-//                if (!productCharValueRepository.existsById(charValue.getId())) {
-//                    throw new NotFoundException(HttpStatus.NOT_FOUND, "Not Found Product Char Value: " + charValue.getId());
-//                }
-//            })
-//            ;
-//        }
-//        // save char value
-//        List<ProductCharUse> productCharUses = new ArrayList<>();
-//        productCharValues.forEach(charValue -> {
-//
-//            ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(charValue.getId());
-//            ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
-//                    .productId(productSave.getId())
-//                    .createUser(UserUtil.getUserId())
-//                    .createDatetime(new Date()).build();
-//            productCharUses.add(productCharUse);
-//        });
-//        productCharUseRepository.saveAll(productCharUses);
+        Arrays.asList(images).forEach((image -> {
+            String imageName = System.currentTimeMillis() + image.getOriginalFilename();
+            try {
+                ftpService.uploadFile(imagesFolder, image, imageName);
+            } catch (Exception e) {
+                throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
+            }
+            productImageRepository.save(ProductImage.builder().
+                    image(imageName).
+                    productId(productSave.getId()).
+                    status(true)
+                   .build());
+        }));
+
+        // save char value
+        List<ProductCharUse> productCharUses = new ArrayList<>();
+        productCharValues.forEach(charValue -> {
+
+            ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(charValue.getId());
+            ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
+                    .productId(productSave.getId())
+                    .createUser(UserUtil.getUserId())
+                    .createDatetime(new Date()).build();
+            productCharUses.add(productCharUse);
+        });
+        productCharUseRepository.saveAll(productCharUses);
         return null;
     }
 
     public List<ProductDTO> get(String baseUrl, Long id) {
         //get Product
         List<Product> resultProduct = productRepository.findByIdCus(id);
-        if (Utils.isListEmpty(resultProduct)) {
+        if (Utils.isNullOrEmpty(resultProduct)) {
             return null;
         }
         List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());

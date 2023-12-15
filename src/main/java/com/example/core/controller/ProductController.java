@@ -41,7 +41,8 @@ public class ProductController {
     @CrossOrigin
     public ResponseEntity create(@Nullable @RequestParam("id") Long id,
                                  @Nullable @RequestParam("thumbnail") MultipartFile thumbnail,
-                                 @Nullable @RequestParam("images") Object[] images,
+                                 @Nullable @RequestParam("images") MultipartFile[] images,
+                                 @Nullable @RequestParam("oldImages") String[] oldImages,
                                  @NotNull @RequestParam("productTypeId") Long productTypeId,
                                  @NotNull @RequestParam("name") String name,
                                  @NotNull @RequestParam("quantity") Long quantity,
@@ -50,7 +51,7 @@ public class ProductController {
                                  @Nullable @RequestParam("description") MultipartFile description,
                                  @RequestParam("productCharValues") String productCharValues) throws Exception {
         List<ProductSpecCharValueDTO> productCharValuesObj = Arrays.asList(new GsonBuilder().create().fromJson(productCharValues, ProductSpecCharValueDTO[].class));
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, productTypeId, name, quantity, price, status, description, productCharValuesObj)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, oldImages, productTypeId, name, quantity, price, status, description, productCharValuesObj)));
     }
 
     @ApiOperation(value = "get")

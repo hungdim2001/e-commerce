@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface ProductCharUseRepository extends JpaRepository<ProductCharUse, Long> {
     List<ProductCharUse> findByProductId(Long id);
+    void deleteAllByProductId(Long id);
 
 }

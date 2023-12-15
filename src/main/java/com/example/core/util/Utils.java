@@ -3,8 +3,11 @@ package com.example.core.util;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,10 +15,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-
+@Component
 public class Utils {
 
     static final Logger logger = LoggerFactory.getLogger(Utils.class);
+
+    @Value("${api.file.endpoint}")
+    private String endpoint;
+
+    private static String END_POINT_STATIC;
+
+    @Value("${api.file.endpoint}")
+    public void setNameStatic(String endpoint){
+        Utils.END_POINT_STATIC = endpoint;
+    }
+    public static String getEndPointStatic() {
+        return END_POINT_STATIC;
+    }
     public static Date getEndTime(Date startTime, int warranty) {
         Calendar c = Calendar.getInstance();
         c.setTime(startTime);
@@ -25,7 +41,36 @@ public class Utils {
     public static boolean isListEmpty(List<?> myList) {
         return myList.isEmpty();
     }
+    public static boolean isNullOrEmpty(Object obj) {
+        if (obj == null) {
+            return true;
+        }
 
+        if (obj instanceof CharSequence) {
+            return ((CharSequence) obj).length() == 0;
+        }
+
+        if (obj.getClass().isArray()) {
+            return java.lang.reflect.Array.getLength(obj) == 0;
+        }
+
+        if (obj instanceof java.util.Collection) {
+            return ((java.util.Collection<?>) obj).isEmpty();
+        }
+
+        if (obj instanceof java.util.Map) {
+            return ((java.util.Map<?, ?>) obj).isEmpty();
+        }
+
+        // Check for other types of objects here if needed
+
+        return false;
+    }
+    public static String getFileName(String name) {
+        String folderPath = name.split(Utils.getEndPointStatic())[1];
+        String[] pathSegments = folderPath.split("/");
+        return pathSegments[pathSegments.length - 1];
+    }
     public static String getProperty(Object object) {
 
         return object != null ? object.toString() : null;
