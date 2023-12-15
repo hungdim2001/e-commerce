@@ -40,8 +40,8 @@ public class ProductController {
     @PostMapping(path = "")
     @CrossOrigin
     public ResponseEntity create(@Nullable @RequestParam("id") Long id,
-                                 @RequestParam("thumbnail") MultipartFile thumbnail,
-                                 @RequestParam("images") MultipartFile[] images,
+                                 @Nullable @RequestParam("thumbnail") MultipartFile thumbnail,
+                                 @Nullable @RequestParam("images") Object[] images,
                                  @NotNull @RequestParam("productTypeId") Long productTypeId,
                                  @NotNull @RequestParam("name") String name,
                                  @NotNull @RequestParam("quantity") Long quantity,
@@ -49,13 +49,14 @@ public class ProductController {
                                  @NotNull @RequestParam("status") Boolean status,
                                  @Nullable @RequestParam("description") MultipartFile description,
                                  @RequestParam("productCharValues") String productCharValues) throws Exception {
-       List<ProductSpecCharValueDTO> productCharValuesObj  = Arrays.asList(new GsonBuilder().create().fromJson(productCharValues, ProductSpecCharValueDTO[].class));
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, Arrays.asList(images), productTypeId, name, quantity, price, status, description, productCharValuesObj)));
+        List<ProductSpecCharValueDTO> productCharValuesObj = Arrays.asList(new GsonBuilder().create().fromJson(productCharValues, ProductSpecCharValueDTO[].class));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, productTypeId, name, quantity, price, status, description, productCharValuesObj)));
     }
+
     @ApiOperation(value = "get")
-    @GetMapping(value = {"","/{id}"})
+    @GetMapping(value = {"", "/{id}"})
     @CrossOrigin
-    public ResponseEntity get(HttpServletRequest request,@PathVariable(required = false) Long id) throws IOException {
+    public ResponseEntity get(HttpServletRequest request, @PathVariable(required = false) Long id) throws IOException {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Get product successfully", productService.get(ServletUriComponentsBuilder.fromRequestUri(request)
                 .replacePath(null)
                 .build()
