@@ -56,6 +56,39 @@ public class ProductService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public void delete(List<Long> ids) throws Exception {
+
+        List<Product> products = productRepository.findAllById(ids);
+        products.stream().forEach(item -> {
+            //delete thumbnail
+            try {
+                ftpService.deleteFile(thumbnailFolder, item.getThumbnail());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            //deleted description
+            try {
+                ftpService.deleteFile(descriptionFolder, item.getDescription());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            // delete images
+            List<ProductImage> productImages = productImageRepository.findByProductId(item.getId());
+            productImages.stream().forEach(productImage -> {
+                try {
+                    ftpService.deleteFile(imagesFolder, productImage.getImage());
+                    productImageRepository.deleteById(productImage.getId());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            //delete product char value
+             productCharUseRepository.deleteAllByProductId(item.getId());
+        });
+        productRepository.deleteAllById(ids);
+    }
+
     public ProductDTO create(Long id,
                              MultipartFile thumbnail,
                              MultipartFile[] images,
@@ -66,7 +99,7 @@ public class ProductService {
                              Long price,
                              Boolean status,
                              MultipartFile description,
-                             List<ProductSpecCharValueDTO> productCharValues) throws Exception {
+                             List<String> productCharValues) throws Exception {
         // check productType nul
         if (Utils.isNull(productTypeId)) {
             throw new IllegalArgumentException(HttpStatus.BAD_REQUEST, "product Type is null");
@@ -75,8 +108,8 @@ public class ProductService {
         if (!Utils.isNull(productCharValues)) {
             productCharValues.stream().forEach(charValue -> {
                 //check exist product char
-                if (!productCharValueRepository.existsById(charValue.getId())) {
-                    throw new NotFoundException(HttpStatus.NOT_FOUND, "Not Found Product Char Value: " + charValue.getId());
+                if (!productCharValueRepository.existsById(Long.parseLong(charValue))) {
+                    throw new NotFoundException(HttpStatus.NOT_FOUND, "Not Found Product Char Value: " + charValue);
                 }
             })
             ;
@@ -138,7 +171,7 @@ public class ProductService {
             List<ProductCharUse> productCharUses = new ArrayList<>();
             productCharUseRepository.deleteAllByProductId(oldProduct.getId());
             productCharValues.forEach(charValue -> {
-                ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(charValue.getId());
+                ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
                 ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
                         .productId(oldProduct.getId())
                         .build();
@@ -191,14 +224,14 @@ public class ProductService {
                     image(imageName).
                     productId(productSave.getId()).
                     status(true)
-                   .build());
+                    .build());
         }));
 
         // save char value
         List<ProductCharUse> productCharUses = new ArrayList<>();
         productCharValues.forEach(charValue -> {
 
-            ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(charValue.getId());
+            ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
             ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
                     .productId(productSave.getId())
                     .createUser(UserUtil.getUserId())

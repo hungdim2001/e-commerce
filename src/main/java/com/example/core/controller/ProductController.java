@@ -49,9 +49,8 @@ public class ProductController {
                                  @NotNull @RequestParam("price") Long price,
                                  @NotNull @RequestParam("status") Boolean status,
                                  @Nullable @RequestParam("description") MultipartFile description,
-                                 @RequestParam("productCharValues") String productCharValues) throws Exception {
-        List<ProductSpecCharValueDTO> productCharValuesObj = Arrays.asList(new GsonBuilder().create().fromJson(productCharValues, ProductSpecCharValueDTO[].class));
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, oldImages, productTypeId, name, quantity, price, status, description, productCharValuesObj)));
+                                 @RequestParam("productCharValues") String[] productCharValues) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, oldImages, productTypeId, name, quantity, price, status, description, Arrays.asList(productCharValues))));
     }
 
     @ApiOperation(value = "get")
@@ -64,4 +63,16 @@ public class ProductController {
                 .toUriString(), id)));
 
     }
+
+    @Transactional(rollbackOn = Exception.class)
+    @ApiOperation(value = "delete")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @DeleteMapping(path = "")
+    @CrossOrigin
+    public ResponseEntity delete(@RequestBody List<Long> ids) throws Exception {
+        productService.delete(ids);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Delete product type successfully", null));
+
+    }
+
 }
