@@ -21,5 +21,8 @@ public class ProductCharUse  extends AuditTable implements Serializable {
     private Long productId;
     @Column(name = "PRODUCT_SPEC_CHAR_USE_ID")
     private Long productSpecCharUseId;
+    @Column(name= "priority")
+    private Long priority;
+
 
 }
