@@ -1,7 +1,9 @@
 package com.example.core.controller;
 
+import com.example.core.entity.Variant;
 import com.example.core.helper.ResponseObj;
 import com.example.core.service.ProductService;
+import com.google.gson.reflect.TypeToken;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,11 +13,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.google.gson.Gson;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,13 +42,18 @@ public class ProductController {
                                  @Nullable @RequestParam("oldImages") String[] oldImages,
                                  @NotNull @RequestParam("productTypeId") Long productTypeId,
                                  @NotNull @RequestParam("name") String name,
-                                 @NotNull @RequestParam("quantity") Long quantity,
-                                 @NotNull @RequestParam("price") Long price,
+//                                 @NotNull @RequestParam("quantity") Long quantity,
+//                                 @NotNull @RequestParam("price") Long price,
                                  @NotNull @RequestParam("status") Boolean status,
                                  @Nullable @RequestParam("description") MultipartFile description,
-                                 @Nullable  @RequestParam("productCharValues") String[] productCharValues,
-                                 @Nullable @RequestParam("priority") String[]  priority) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, oldImages, productTypeId, name, quantity, price, status, description, Arrays.asList(productCharValues),Arrays.asList(priority))));
+                                 @Nullable @RequestParam("productCharValues") String[] productCharValues,
+                                 @Nullable @RequestParam("variants") String[] variants,
+                                 @Nullable @RequestParam("variantImages") MultipartFile[] variantImages
+    ) throws Exception {
+        Gson gson = new Gson();
+        Type collectionType = new TypeToken<List<Variant>>(){}.getType();
+        List<Variant>variantsObjs = gson.fromJson(Arrays.toString(variants), collectionType);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, oldImages, productTypeId, name, status, description, Arrays.asList(productCharValues),variantsObjs,Arrays.asList(variantImages))));
     }
 
     @ApiOperation(value = "get")

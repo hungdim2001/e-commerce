@@ -3,10 +3,7 @@ package com.example.core.service;
 import com.example.core.dto.ProductDTO;
 import com.example.core.dto.ProductSpecCharDTO;
 import com.example.core.dto.ProductSpecCharValueDTO;
-import com.example.core.entity.Product;
-import com.example.core.entity.ProductCharUse;
-import com.example.core.entity.ProductImage;
-import com.example.core.entity.ProductSpecCharUse;
+import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
 import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.*;
@@ -49,12 +46,13 @@ public class ProductService {
     private String thumbnailFolder;
     @Value("${ftp.product.description}")
     private String descriptionFolder;
-
     @Value("${api.file.endpoint}")
     private String apiFileEndpoint;
-
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private VariantRepository variantRepository;
 
     public void delete(List<Long> ids) throws Exception {
 
@@ -95,12 +93,14 @@ public class ProductService {
                              String[] oldImages,
                              Long productTypeId,
                              String name,
-                             Long quantity,
-                             Long price,
+//                             Long quantity,
+//                             Long price,
                              Boolean status,
                              MultipartFile description,
                              List<String> productCharValues,
-                             List<String> priority) throws Exception {
+                             List<Variant> variants,
+                             List<MultipartFile> variantImages
+    ) throws Exception {
         // check productType nul
         if (Utils.isNull(productTypeId)) {
             throw new IllegalArgumentException(HttpStatus.BAD_REQUEST, "product Type is null");
@@ -119,6 +119,7 @@ public class ProductService {
         productTypeRepository.findById(productTypeId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Not Found Product Type: " + productTypeId)
         );
+        //update
         if (!Utils.isNull(id)) {
             Product oldProduct = productRepository.getById(id);
 
@@ -175,7 +176,6 @@ public class ProductService {
                 ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
                 ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
                         .productId(oldProduct.getId())
-                        .priority(priority.contains(productSpecCharUse.getProductSpecCharValueID().toString()) ? productSpecCharUse.getProductSpecCharValueID() : -1)
                         .updateUser(UserUtil.getUserId())
                         .updateDatetime(new Date())
                         .build();
@@ -187,8 +187,8 @@ public class ProductService {
             oldProduct.setStatus(status);
             oldProduct.setName(name);
             oldProduct.setProductTypeId(productTypeId);
-            oldProduct.setPrice(price);
-            oldProduct.setQuantity(quantity);
+//            oldProduct.setPrice(price);
+//            oldProduct.setQuantity(quantity);
             productRepository.save(oldProduct);
             return null;
         }
@@ -212,9 +212,9 @@ public class ProductService {
                 createUser(UserUtil.getUserId()).
                 status(status).
                 name(name).
-                price(price).
-                description(descriptionName).
-                quantity(quantity)
+//                price(price).
+        description(descriptionName)
+//                .quantity(quantity)
                 .build());
 //        // save images
         Arrays.asList(images).forEach((image -> {
@@ -238,13 +238,31 @@ public class ProductService {
             ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
             ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId())
                     .productId(productSave.getId())
-                    .priority(priority.contains(productSpecCharUse.getProductSpecCharValueID().toString()) ? productSpecCharUse.getProductSpecCharValueID() : -1)
                     .createUser(UserUtil.getUserId())
                     .createDatetime(new Date()).build();
             productCharUses.add(productCharUse);
         });
         productCharUseRepository.saveAll(productCharUses);
-        return null;
+        Map<String, String> variantImageMap = new HashMap<>();
+        //save variant Image
+        variantImages.forEach((image -> {
+            String imageName = System.currentTimeMillis() +"-"+ image.getOriginalFilename();
+            try {
+                ftpService.uploadFile(imagesFolder, image, imageName);
+            } catch (Exception e) {
+                throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
+            }
+            variantImageMap.put(image.getOriginalFilename().split("\\.")[0], imageName);
+        }));
+
+        //save variants
+        variants.forEach(variant -> {
+            variant.setImage(variantImageMap.get(variant.getChars()));
+            variant.setProductId(productSave.getId());
+        });
+        variantRepository.saveAll(variants);
+        throw new RuntimeException("s");
+//        return null;
     }
 
     public List<ProductDTO> get(String baseUrl, Long id) {
@@ -265,12 +283,7 @@ public class ProductService {
             List<ProductSpecCharUse> productSpecCharUses = productSpecCharUseRepository.findByIds(
                     productCharUses.stream().map(charUse ->
                             charUse.getProductSpecCharUseId()).collect(Collectors.toList()));
-            Set<Long> setPriority = new HashSet<>();
-            productCharUses.forEach(productCharUse -> {
-                if (!Utils.isNull(productCharUse.getPriority())) {
-                    setPriority.add(productCharUse.getPriority());
-                }
-            });
+
             Map<Long, List<Long>> charUseMap = new HashMap<>();
             productSpecCharUses.forEach(specCharUse -> {
                 if (charUseMap.containsKey(specCharUse.getProductSpecCharID())) {
@@ -285,15 +298,6 @@ public class ProductService {
                 List<ProductSpecCharValueDTO> productSpecCharValueDTO = productCharValueRepository.findAllById(value).stream()
                         .map(charValue -> modelMapper.map(charValue, ProductSpecCharValueDTO.class))
                         .collect(Collectors.toList());
-                productSpecCharValueDTO.forEach(charValue ->
-                        {
-                            if (setPriority.contains(charValue.getId())) {
-                                charValue.setPriority(charValue.getId());
-                            } else {
-                                charValue.setPriority((long) -1);
-                            }
-                        }
-                );
                 productSpecCharDTO.setProductSpecCharValueDTOS(productSpecCharValueDTO);
                 productSpecCharDTOs.add(productSpecCharDTO);
             });
