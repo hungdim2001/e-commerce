@@ -3,6 +3,7 @@ package com.example.core.service;
 import com.example.core.dto.ProductDTO;
 import com.example.core.dto.ProductSpecCharDTO;
 import com.example.core.dto.ProductSpecCharValueDTO;
+import com.example.core.dto.VariantDTO;
 import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
 import com.example.core.exceptions.NotFoundException;
@@ -211,7 +212,7 @@ public class ProductService {
         Map<String, String> variantImageMap = new HashMap<>();
         //save variant Image
         variantImages.forEach((image -> {
-            String imageName = System.currentTimeMillis() + "-" + image.getOriginalFilename();
+            String imageName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
             try {
                 ftpService.uploadFile(imagesFolder, image, imageName);
             } catch (Exception e) {
@@ -242,17 +243,22 @@ public class ProductService {
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
             item.setDescription(baseUrl + apiFileEndpoint + descriptionFolder + "/" + item.getDescription());
             item.setImages(productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
-
             //get product  variants
             List<Variant> variants = variantRepository.findByProductId(item.getId());
             // get option variant
-            Set<Integer> uniqueCharIds = new HashSet<>();
+            Set<Long> uniqueCharIds = new HashSet<>();
             variants.stream().map(Variant::getChars).collect(Collectors.toList()).forEach(charId -> {
                 String[] nums = charId.split(",");
                 for (String num : nums) {
-                    uniqueCharIds.add(Integer.parseInt(num));
+                    uniqueCharIds.add(Long.parseLong(num));
                 }
             });
+            item.setVariants(variants.stream().map(variant -> {
+                VariantDTO variantDTO= modelMapper.map(variant, VariantDTO.class);
+                variantDTO.setChars(Arrays.stream(variant.getChars().split(",")).map(Long::parseLong).collect(Collectors.toList()));
+                variantDTO.setImage(baseUrl + apiFileEndpoint + imagesFolder + "/" + variant.getImage());
+                return variantDTO ;
+            }).collect(Collectors.toList()));
 
             //get product char
             List<ProductCharUse> productCharUses = productCharUseRepository.findByProductId(item.getId());
@@ -272,6 +278,13 @@ public class ProductService {
                 ProductSpecCharDTO productSpecCharDTO = modelMapper.map(productSpecCharRepository.getById(key), ProductSpecCharDTO.class);
                 List<ProductSpecCharValueDTO> productSpecCharValueDTO = productCharValueRepository.findAllById(value).stream().map(charValue -> modelMapper.map(charValue, ProductSpecCharValueDTO.class)).collect(Collectors.toList());
                 productSpecCharDTO.setProductSpecCharValueDTOS(productSpecCharValueDTO);
+                productSpecCharValueDTO.stream().forEach(charValue -> {
+                    if (uniqueCharIds.contains(charValue.getId())) {
+                        charValue.setVariant(true);
+                    } else {
+                        charValue.setVariant(false);
+                    }
+                });
                 productSpecCharDTOs.add(productSpecCharDTO);
             });
             item.setProductSpecChars(productSpecCharDTOs);

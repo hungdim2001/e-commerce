@@ -2,6 +2,7 @@ package com.example.core.dto;
 
 import com.example.core.entity.AuditTable;
 import com.example.core.entity.ProductType;
+import com.example.core.entity.Variant;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,4 +17,5 @@ public class ProductDTO extends AuditTable {
     private List<String> images;
     private Long price;
     private List<ProductSpecCharDTO> productSpecChars;
+    private List<VariantDTO> variants;
 }
