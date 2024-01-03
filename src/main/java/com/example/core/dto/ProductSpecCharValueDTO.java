@@ -20,6 +20,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class ProductSpecCharValueDTO   extends AuditTable {
     private String value;
-    private Long priority;
+    private boolean isVariant;
 
 }
