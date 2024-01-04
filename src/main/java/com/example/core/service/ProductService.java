@@ -11,6 +11,7 @@ import com.example.core.repository.*;
 import com.example.core.util.UserUtil;
 import com.example.core.util.Utils;
 import com.google.common.collect.Lists;
+import org.aspectj.weaver.ast.Var;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,6 +82,18 @@ public class ProductService {
                     throw new RuntimeException(e);
                 }
             });
+            List<Variant> variants = variantRepository.findByProductId(item.getId());
+
+            //delete variant image
+            variants.stream().forEach(variant -> {
+                try {
+                    ftpService.deleteFile(imagesFolder, variant.getImage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            //delete variant
+            variantRepository.deleteAllByProductId(item.getId());
 
             //delete product char value
             productCharUseRepository.deleteAllByProductId(item.getId());
@@ -89,16 +102,14 @@ public class ProductService {
     }
 
     public ProductDTO create(Long id, MultipartFile thumbnail, MultipartFile[] images, String[] oldImages, Long productTypeId, String name,
-//                             Long quantity,
-//                             Long price,
-                             Boolean status, MultipartFile description, List<String> productCharValues, List<Variant> variants, List<MultipartFile> variantImages) throws Exception {
+                             Boolean status, MultipartFile description, String[] productCharValues, Variant[] variants ) throws Exception {
         // check productType nul
         if (Utils.isNull(productTypeId)) {
             throw new IllegalArgumentException(HttpStatus.BAD_REQUEST, "product Type is null");
         }
         //check char value
         if (!Utils.isNull(productCharValues)) {
-            productCharValues.stream().forEach(charValue -> {
+            Arrays.asList(productCharValues).stream().forEach(charValue -> {
                 //check exist product char
                 if (!productCharValueRepository.existsById(Long.parseLong(charValue))) {
                     throw new NotFoundException(HttpStatus.NOT_FOUND, "Not Found Product Char Value: " + charValue);
@@ -110,85 +121,88 @@ public class ProductService {
         //update
         if (!Utils.isNull(id)) {
             Product oldProduct = productRepository.getById(id);
-//            if (!Utils.isNull(thumbnail)) {
-//                ftpService.deleteFile(thumbnailFolder, oldProduct.getThumbnail());
-//                String thumbnailName = System.currentTimeMillis() + thumbnail.getOriginalFilename();
-//                boolean upFileThumbnailSuccess = ftpService.uploadFile(thumbnailFolder, thumbnail, thumbnailName);
-//                if (!upFileThumbnailSuccess) {
-//                    throw new IOException("cant not upload thumbnail file: " + thumbnail.getOriginalFilename());
-//                }
-//                oldProduct.setThumbnail(thumbnailName);
-//            }
-//            if (!Utils.isNull(description)) {
-//                ftpService.deleteFile(descriptionFolder, oldProduct.getDescription());
-//                String descriptionName = System.currentTimeMillis() + description.getOriginalFilename();
-//                boolean upFileDescriptionSuccess = ftpService.uploadFile(descriptionFolder, description, descriptionName);
-//                if (!upFileDescriptionSuccess) {
-//                    throw new IOException("cant not upload thumbnail file: " + description.getOriginalFilename());
-//                }
-//                oldProduct.setDescription(descriptionName);
-//            }
-//            if (!Utils.isNullOrEmpty(oldImages)) {
-//                List<String> oldImageFileName = Arrays.stream(oldImages).map(Utils::getFileName).collect(Collectors.toList());
-//                List<ProductImage> oldProductImages = productImageRepository.findByProductId(id);
-//                List<String> deleteImages = oldProductImages.stream().map(ProductImage::getImage).filter(image -> !oldImageFileName.contains(image)).collect(Collectors.toList());
-//                deleteImages.forEach(item -> {
-//                    try {
-//                        ftpService.deleteFile(imagesFolder, item);
-//                        productImageRepository.deleteByImage(item);
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                });
-//            }
-//            if (!Utils.isNullOrEmpty(images)) {
-//                Arrays.asList(images).forEach((image -> {
-//                    String imageName = System.currentTimeMillis() + image.getOriginalFilename();
-//                    try {
-//                        ftpService.uploadFile(imagesFolder, image, imageName);
-//                    } catch (Exception e) {
-//                        throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
-//                    }
-//                    productImageRepository.save(ProductImage.builder().image(imageName).productId(oldProduct.getId()).status(true).createUser(UserUtil.getUserId()).createDatetime(new Date()).build());
-//                }));
-//            }
-//            List<ProductCharUse> productCharUses = new ArrayList<>();
-//            productCharUseRepository.deleteAllByProductId(oldProduct.getId());
-//            productCharValues.forEach(charValue -> {
-//                ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
-//                ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId()).productId(oldProduct.getId()).updateUser(UserUtil.getUserId()).updateDatetime(new Date()).build();
-//                productCharUses.add(productCharUse);
-//            });
+            if (!Utils.isNull(thumbnail)) {
+                ftpService.deleteFile(thumbnailFolder, oldProduct.getThumbnail());
+                String thumbnailName = System.currentTimeMillis() + thumbnail.getOriginalFilename();
+                boolean upFileThumbnailSuccess = ftpService.uploadFile(thumbnailFolder, thumbnail, thumbnailName);
+                if (!upFileThumbnailSuccess) {
+                    throw new IOException("cant not upload thumbnail file: " + thumbnail.getOriginalFilename());
+                }
+                oldProduct.setThumbnail(thumbnailName);
+            }
+            if (!Utils.isNull(description)) {
+                ftpService.deleteFile(descriptionFolder, oldProduct.getDescription());
+                String descriptionName = System.currentTimeMillis() + description.getOriginalFilename();
+                boolean upFileDescriptionSuccess = ftpService.uploadFile(descriptionFolder, description, descriptionName);
+                if (!upFileDescriptionSuccess) {
+                    throw new IOException("cant not upload thumbnail file: " + description.getOriginalFilename());
+                }
+                oldProduct.setDescription(descriptionName);
+            }
+            if (!Utils.isNullOrEmpty(oldImages)) {
+                List<String> oldImageFileName = Arrays.stream(oldImages).map(Utils::getFileName).collect(Collectors.toList());
+                List<ProductImage> oldProductImages = productImageRepository.findByProductId(id);
+                List<String> deleteImages = oldProductImages.stream().map(ProductImage::getImage).filter(image -> !oldImageFileName.contains(image)).collect(Collectors.toList());
+                deleteImages.forEach(item -> {
+                    try {
+                        ftpService.deleteFile(imagesFolder, item);
+                        productImageRepository.deleteByImage(item);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
 
+            Map<String, String> variantImageMap = new HashMap<>();
+            if (!Utils.isNullOrEmpty(images)) {
+                Arrays.asList(images).forEach((image -> {
+                    String imageName = System.currentTimeMillis() + image.getOriginalFilename();
+                    try {
+                        ftpService.uploadFile(imagesFolder, image, imageName);
+                    } catch (Exception e) {
+                        throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
+                    }
+                    productImageRepository.save(ProductImage.builder().image(imageName).productId(oldProduct.getId()).status(true).createUser(UserUtil.getUserId()).createDatetime(new Date()).build());
+                    variantImageMap.put(image.getOriginalFilename(), imageName);
+                }));
+
+            }
             //save variant
             List<Variant> oldVariants = variantRepository.findByProductId(id);
-            //remove old ImagesVariant
-            List<String> oldImagesVariant = oldVariants.stream().map(Variant::getImage).collect(Collectors.toList());
-            List<String> newImagesVariant = variants.stream().map(variant -> {
-                String[] oldImageName = variant.getImage().split("/");
-                return oldImageName[oldImageName.length - 1];
-            }).collect(Collectors.toList());
-            List<String> imageVariantRemove = oldImagesVariant.stream().filter(oldImage -> !newImagesVariant.contains(oldImage)).collect(Collectors.toList());
-            imageVariantRemove.forEach(item -> {
-                try {
-                    ftpService.deleteFile(imagesFolder, item);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            // remove old variant
+           // remove old variant
             List<Long> oldVariantIds = oldVariants.stream().map(Variant::getId).collect(Collectors.toList());
-            List<Long> newVariantIds = variants.stream().map(Variant::getId).collect(Collectors.toList());
+            List<Long> newVariantIds = Arrays.stream(variants).map(Variant::getId).collect(Collectors.toList());
             List<Long> variantIdRemove = oldVariantIds.stream().filter(oldVariantId -> !newVariantIds.contains(oldVariantId)).collect(Collectors.toList());
             variantRepository.deleteAllById(variantIdRemove);
+            Arrays.asList(variants).forEach(variant ->
+            {
+                if (!Utils.isNull(variantImageMap.get(variant.getImage()))) {
+                    variant.setImage(variantImageMap.get(variant.getImage()));
+                } else {
+                    String[] oldImageName = variant.getImage().split("/");
+                    variant.setImage(oldImageName[oldImageName.length - 1]);
+                }
+                variant.setProductId(id);
+            });
+            variantRepository.saveAll(Arrays.asList(variants));
 
-//            productCharUseRepository.saveAll(productCharUses);
-//            oldProduct.setUpdateDatetime(new Date());
-//            oldProduct.setUpdateUser(UserUtil.getUserId());
-//            oldProduct.setStatus(status);
-//            oldProduct.setName(name);
-//            oldProduct.setProductTypeId(productTypeId);
-//            productRepository.save(oldProduct);
+            //save product char
+            List<ProductCharUse> productCharUses = new ArrayList<>();
+            productCharUseRepository.deleteAllByProductId(oldProduct.getId());
+            if (!Utils.isNullOrEmpty(productCharValues)) {
+                Arrays.asList(productCharValues).forEach(charValue -> {
+                    ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
+                    ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId()).productId(oldProduct.getId()).updateUser(UserUtil.getUserId()).updateDatetime(new Date()).build();
+                    productCharUses.add(productCharUse);
+                });
+            }
+            productCharUseRepository.saveAll(productCharUses);
+            oldProduct.setUpdateDatetime(new Date());
+            oldProduct.setUpdateUser(UserUtil.getUserId());
+            oldProduct.setStatus(status);
+            oldProduct.setName(name);
+            oldProduct.setProductTypeId(productTypeId);
+            productRepository.save(oldProduct);
             return null;
         }
 
@@ -210,10 +224,10 @@ public class ProductService {
         Product productSave = productRepository.save(Product.builder().productTypeId(productTypeId).createDatetime(new Date()).thumbnail(thumbnailName).createUser(UserUtil.getUserId()).status(status).name(name).
                 description(descriptionName)
                 .build());
+
+        Map<String, String> variantImageMap = new HashMap<>();
         Arrays.asList(images).
-
                 forEach((image ->
-
                 {
                     String imageName = System.currentTimeMillis() + image.getOriginalFilename();
                     try {
@@ -222,39 +236,28 @@ public class ProductService {
                         throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
                     }
                     productImageRepository.save(ProductImage.builder().image(imageName).productId(productSave.getId()).status(true).build());
+                    variantImageMap.put(image.getOriginalFilename(), imageName);
                 }));
-
-        // save char value
-        List<ProductCharUse> productCharUses = new ArrayList<>();
-        productCharValues.forEach(charValue ->
-
-        {
-            ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
-            ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId()).productId(productSave.getId()).createUser(UserUtil.getUserId()).createDatetime(new Date()).build();
-            productCharUses.add(productCharUse);
-        });
-        productCharUseRepository.saveAll(productCharUses);
-        Map<String, String> variantImageMap = new HashMap<>();
-        //save variant Image
-        variantImages.forEach((image ->
-
-        {
-            String imageName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-            try {
-                ftpService.uploadFile(imagesFolder, image, imageName);
-            } catch (Exception e) {
-                throw new RuntimeException("cant not upload thumbnail file: " + image.getOriginalFilename());
-            }
-            variantImageMap.put(image.getOriginalFilename().split("\\.")[0], imageName);
-        }));
         //save variants
-        variants.forEach(variant ->
-
+        Arrays.asList(variants).forEach(variant ->
         {
-            variant.setImage(variantImageMap.get(variant.getChars()));
+            variant.setImage(variantImageMap.get(variant.getImage()));
             variant.setProductId(productSave.getId());
         });
-        variantRepository.saveAll(variants);
+        variantRepository.saveAll(Arrays.asList(variants));
+        // save char value
+        if (!Utils.isNullOrEmpty(productCharValues)) {
+            List<ProductCharUse> productCharUses = new ArrayList<>();
+            Arrays.asList(productCharValues).forEach(charValue ->
+
+            {
+                ProductSpecCharUse productSpecCharUse = productSpecCharUseRepository.findByProductSpecCharValueID(Long.parseLong(charValue));
+                ProductCharUse productCharUse = ProductCharUse.builder().productSpecCharUseId(productSpecCharUse.getId()).productId(productSave.getId()).createUser(UserUtil.getUserId()).createDatetime(new Date()).build();
+                productCharUses.add(productCharUse);
+            });
+            productCharUseRepository.saveAll(productCharUses);
+        }
+
         return null;
     }
 

@@ -20,7 +20,8 @@ public class TokenService {
     private TokenRepository tokenRepository;
 
     public TokenResponse refreshToken(String rfToken) {
-
+        System.out.println("rf: "+ rfToken);
+        System.out.println("old: "+tokenRepository.getToken().getToken());
         if (!jwtUtils.validateJwtToken(rfToken, false)) {
           throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST,"invalid refresh token");
         }
