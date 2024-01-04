@@ -51,8 +51,9 @@ public class ProductController {
                                  @Nullable @RequestParam("variantImages") MultipartFile[] variantImages
     ) throws Exception {
         Gson gson = new Gson();
-        Type collectionType = new TypeToken<List<Variant>>(){}.getType();
-        List<Variant>variantsObjs = gson.fromJson(Arrays.toString(variants), collectionType);
+        Type collectionType = new TypeToken<List<Variant>>() {
+        }.getType();
+        List<Variant> variantsObjs = gson.fromJson(Arrays.toString(variants), collectionType);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", productService.create(id, thumbnail, images, oldImages, productTypeId, name, status, description, Arrays.asList(productCharValues),variantsObjs,Arrays.asList(variantImages))));
     }
 
