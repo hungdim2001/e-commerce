@@ -20,23 +20,25 @@ public class TokenService {
     private TokenRepository tokenRepository;
 
     public TokenResponse refreshToken(String rfToken) {
-        System.out.println("rf: "+ rfToken);
-        System.out.println("old: "+tokenRepository.getToken().getToken());
         if (!jwtUtils.validateJwtToken(rfToken, false)) {
-          throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST,"invalid refresh token");
+            throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST, "invalid refresh token");
         }
-        if(!tokenRepository.existsByToken(rfToken)){
-            throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST,"token not exits");
+        if (!tokenRepository.existsByToken(rfToken)) {
+            throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST, "token not exits");
         }
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(rfToken, false));
         TokenType accessToken = jwtUtils.generateJwtToken(id, true);
-        TokenType refreshToken = jwtUtils.generateJwtToken(id,false);
-        tokenRepository.updateToken(refreshToken.getToken(),rfToken);
-        return  TokenResponse.builder()
+        TokenType refreshToken = jwtUtils.generateJwtToken(id, false);
+//        tokenRepository.updateToken(refreshToken.getToken(),rfToken);
+        return TokenResponse.builder()
                 .accessToken(accessToken.getToken()).
                 expiresIn(accessToken.getExpiresIn() - (new Date()).getTime())
                 .refreshToken(refreshToken.getToken()).
-                refreshExpiresIn(refreshToken.getExpiresIn()-  (new Date()).getTime())
+                refreshExpiresIn(refreshToken.getExpiresIn() - (new Date()).getTime())
                 .build();
+    }
+
+    public void updateRefreshToken(String oldTK, String newTk) {
+        tokenRepository.updateToken(newTk, oldTK);
     }
 }
