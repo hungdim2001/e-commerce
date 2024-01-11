@@ -22,22 +22,23 @@ import java.net.SocketException;
 @EnableMBeanExport(registration= RegistrationPolicy.IGNORE_EXISTING)
 public class FTPConfig {
 
-    @Value("${ftp.host}")
+    @Value("${ftp.client.host}")
     private String serverAddress;
 
-    @Value("${ftp.port}")
+    @Value("${ftp.client.port}")
     private int serverPort;
 
-    @Value("${ftp.username}")
+    @Value("${ftp.client.username}")
     private String username;
 
-    @Value("${ftp.password}")
+    @Value("${ftp.client.password}")
     private String password;
 
     @Bean
     public GenericObjectPool<FTPClient> ftpClientPool() {
         GenericObjectPoolConfig<FTPClient> poolConfig = new GenericObjectPoolConfig<>();
-        poolConfig.setMaxTotal(1); // Điều chỉnh số kết nối tối đa trong pool
+        poolConfig.setMaxTotal(80); // Điều chỉnh số kết nối tối đa trong pool
+        poolConfig.setMaxIdle(100);
         return new GenericObjectPool<>(new FTPClientFactory(serverAddress, serverPort, username, password), poolConfig);
     }
 

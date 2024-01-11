@@ -29,7 +29,7 @@ public class FtpService {
         boolean successChangeWorkingDirectory = ftpClient.changeWorkingDirectory(remoteDirPath + folder);
         if (!successChangeWorkingDirectory) {
             // Directory doesn't exist, try creating it
-            boolean created = makeDirectories(ftpClient,  folder);
+            boolean created = makeDirectories(ftpClient, folder);
             if (created) {
                 System.out.println("Directory created successfully: " + remoteDirPath + folder);
                 ftpClient.changeWorkingDirectory(remoteDirPath + folder); // Change to newly created directory
@@ -60,7 +60,7 @@ public class FtpService {
 //            } else {
 //                System.out.println("Failed to create directory: " + remoteDirPath + folder);
 //            }
-            throw new IOException("File does not exist: " + folder+fileName);
+            throw new IOException("File does not exist: " + folder + fileName);
 
         } else {
             System.out.println("Directory exists: " + remoteDirPath + folder);
@@ -89,7 +89,10 @@ public class FtpService {
         } finally {
             inputStream.close(); // Đóng luồng sau khi sử dụng
             ftpClient.completePendingCommand(); // Hoàn tất lệnh FTP trước khi ngắt kết nối
+            ftpClient.logout();
+            ftpClient.disconnect();
         }
+
 
         return fileContent;
     }

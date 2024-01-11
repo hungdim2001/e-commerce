@@ -3,21 +3,20 @@ package com.example.core.util;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 @Service
 public class FTPUtils {
-    @Value("${ftp.host}")
+    @Value("${ftp.client.host}")
     private String SERVER_ADDRESS;
-    @Value("${ftp.port}")
+    @Value("${ftp.client.port}")
     private int SERVER_PORT;
-    @Value("${ftp.timeout}")
+    @Value("${ftp.client.connectTimeout}")
     private int FTP_TIMEOUT;
-    @Value("${ftp.username}")
+    @Value("${ftp.client.username}")
     private String USERNAME;
-    @Value("${ftp.password}")
+    @Value("${ftp.client.password}")
     private String PASSWORD;
     @Value("${ftp.remoteDirPath}")
     String remoteDirPath; // Đường dẫn tới thư mục trên FTP
