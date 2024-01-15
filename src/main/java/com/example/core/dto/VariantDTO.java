@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import java.util.List;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -20,6 +21,7 @@ public class VariantDTO extends AuditTable {
     private String name;
     private Long quantity;
     private Long price;
+    private Map<String,String> charValues;
 }
 
 

@@ -102,7 +102,7 @@ public class ProductService {
     }
 
     public ProductDTO create(Long id, MultipartFile thumbnail, MultipartFile[] images, String[] oldImages, Long productTypeId, String name,
-                             Boolean status, MultipartFile description, String[] productCharValues, Variant[] variants ) throws Exception {
+                             Boolean status, MultipartFile description, String[] productCharValues, Variant[] variants) throws Exception {
         // check productType nul
         if (Utils.isNull(productTypeId)) {
             throw new IllegalArgumentException(HttpStatus.BAD_REQUEST, "product Type is null");
@@ -169,7 +169,7 @@ public class ProductService {
             }
             //save variant
             List<Variant> oldVariants = variantRepository.findByProductId(id);
-           // remove old variant
+            // remove old variant
             List<Long> oldVariantIds = oldVariants.stream().map(Variant::getId).collect(Collectors.toList());
             List<Long> newVariantIds = Arrays.stream(variants).map(Variant::getId).collect(Collectors.toList());
             List<Long> variantIdRemove = oldVariantIds.stream().filter(oldVariantId -> !newVariantIds.contains(oldVariantId)).collect(Collectors.toList());
@@ -274,22 +274,8 @@ public class ProductService {
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
             item.setDescription(baseUrl + apiFileEndpoint + descriptionFolder + "/" + item.getDescription());
             item.setImages(productImageRepository.findByProductId(item.getId()).stream().map(image -> baseUrl + apiFileEndpoint + imagesFolder + "/" + image.getImage()).collect(Collectors.toList()));
-            //get product  variants
-            List<Variant> variants = variantRepository.findByProductId(item.getId());
             // get option variant
             Set<Long> uniqueCharIds = new HashSet<>();
-            variants.stream().map(Variant::getChars).collect(Collectors.toList()).forEach(charId -> {
-                String[] nums = charId.split(",");
-                for (String num : nums) {
-                    uniqueCharIds.add(Long.parseLong(num));
-                }
-            });
-            item.setVariants(variants.stream().map(variant -> {
-                VariantDTO variantDTO = modelMapper.map(variant, VariantDTO.class);
-                variantDTO.setChars(Arrays.stream(variant.getChars().split(",")).map(Long::parseLong).collect(Collectors.toList()));
-                variantDTO.setImage(baseUrl + apiFileEndpoint + imagesFolder + "/" + variant.getImage());
-                return variantDTO;
-            }).collect(Collectors.toList()));
 
             //get product char
             List<ProductCharUse> productCharUses = productCharUseRepository.findByProductId(item.getId());
@@ -318,6 +304,30 @@ public class ProductService {
                 });
                 productSpecCharDTOs.add(productSpecCharDTO);
             });
+            //get product  variants
+            List<Variant> variants = variantRepository.findByProductId(item.getId());
+            variants.stream().map(Variant::getChars).collect(Collectors.toList()).forEach(charId -> {
+                String[] nums = charId.split(",");
+                for (String num : nums) {
+                    uniqueCharIds.add(Long.parseLong(num));
+                }
+            });
+            item.setVariants(variants.stream().map(variant -> {
+                VariantDTO variantDTO = modelMapper.map(variant, VariantDTO.class);
+                variantDTO.setChars(Arrays.stream(variant.getChars().split(",")).map(Long::parseLong).collect(Collectors.toList()));
+                variantDTO.setImage(baseUrl + apiFileEndpoint + imagesFolder + "/" + variant.getImage());
+                Map<String, String> charValuesMap = new HashMap<>();
+                productSpecCharDTOs.forEach((productSpecCharDTO) -> {
+                    productSpecCharDTO.getProductSpecCharValueDTOS().forEach(charValue -> {
+                        if (variantDTO.getChars().contains(charValue.getId())) {
+                            charValuesMap.put(productSpecCharDTO.getName(), charValue.getValue());
+                        }
+                    });
+                });
+                variantDTO.setCharValues(charValuesMap);
+                return variantDTO;
+            }).collect(Collectors.toList()));
+
             item.setProductSpecChars(productSpecCharDTOs);
 
         });
