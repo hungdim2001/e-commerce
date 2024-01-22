@@ -13,7 +13,7 @@ import java.io.Serializable;
 @SuperBuilder
 @Entity
 @Data
-@Table(name = "addresss")
+@Table(name = "addresses")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address extends AuditTable implements Serializable {
@@ -31,4 +31,8 @@ public class Address extends AuditTable implements Serializable {
     private Boolean isDefault;
     @Column(name = "USER_ID")
     private Long userId;
+    @Column(name = "LAT")
+    private Double lat;
+    @Column(name = "LON")
+    private Double lon;
 }
