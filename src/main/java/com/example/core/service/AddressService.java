@@ -5,6 +5,7 @@ import com.example.core.entity.Address;
 import com.example.core.entity.Area;
 import com.example.core.repository.AddressRepository;
 import com.example.core.repository.AreaRepository;
+import com.example.core.util.UserUtil;
 import com.example.core.util.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,16 @@ public class AddressService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<Address> saveOrUpdate(Address address) {
+    public List<AddressDTO> saveOrUpdate(Address address) {
+        if(address.getIsDefault()){
+            addressRepository.updateDefault(address.getUserId());
+        }
         addressRepository.save(address);
-        return addressRepository.findAddressByUserId(address.getUserId());
+        return getByUserId(address.getUserId());
+    }
+    public List<AddressDTO> delete(Long id) {
+        addressRepository.deleteById(id);
+        return getByUserId(UserUtil.getUserId());
     }
 
     public List<AddressDTO> getByUserId(Long userId) {

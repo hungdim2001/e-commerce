@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin
 public class AddressController {
-   @Autowired
+    @Autowired
     AddressService addressService;
 
     @PostMapping(value = {""})
@@ -34,5 +34,12 @@ public class AddressController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get area successfully", addressService.getByUserId(arg)));
     }
 
+    @DeleteMapping(value = {"/{arg}"})
+    @ApiOperation(value = "getAddress")
+    @CrossOrigin
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+    public ResponseEntity delete(@PathVariable(required = false) Long arg) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get area successfully", addressService.delete(arg)));
+    }
 
 }
