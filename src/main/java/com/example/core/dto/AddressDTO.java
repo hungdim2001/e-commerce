@@ -11,16 +11,14 @@ import javax.persistence.Column;
 @SuperBuilder
 @NoArgsConstructor
 public class AddressDTO extends AuditTable {
-    private String areaCode;
-    private String province;
-    private String district;
-    private String precinct;
-    private String fullName;
-    private String streetBlock;
+    private Integer province;
+    private Integer district;
+    private Integer ward;
     private String receiver;
     private String addressType;
     private String address;
     private String phone;
+    private String fullName;
     private Boolean isDefault;
     private Long userId;
     private Double lat;

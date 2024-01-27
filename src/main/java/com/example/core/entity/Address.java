@@ -17,8 +17,14 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address extends AuditTable implements Serializable {
-    @Column(name = "AREA_CODE")
-    private String areaCode;
+    //    @Column(name = "AREA_CODE")
+//    private String areaCode;
+    @Column(name = "PROVINCE")
+    private Integer province;
+    @Column(name = "DISTRICT")
+    private Integer district;
+    @Column(name = "WARD")
+    private Integer ward;
     @Column(name = "RECEIVER")
     private String receiver;
     @Column(name = "ADDRESS_TYPE")
@@ -35,4 +41,6 @@ public class Address extends AuditTable implements Serializable {
     private Double lat;
     @Column(name = "LON")
     private Double lon;
+    @Column(name = "FULL_NAME")
+    private String fullName;
 }

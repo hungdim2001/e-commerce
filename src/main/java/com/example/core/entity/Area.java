@@ -31,4 +31,6 @@ public class Area extends AuditTable implements Serializable {
     private String name;
     @Column(name = "FULL_NAME")
     private String fullName;
+    @Column(name = "GHN_ID")
+    private Long ghnId;
 }

@@ -40,14 +40,14 @@ public class AddressService {
             return null;
         List<Address> addresses = addressRepository.findAddressByUserId(userId);
         List<AddressDTO> addressDTOS = addresses.stream().map(address -> modelMapper.map(address, AddressDTO.class)).collect(Collectors.toList());
-        addressDTOS.forEach(addressDTO -> {
-            Area area = areaRepository.findByAreaCode(addressDTO.getAreaCode());
-            addressDTO.setProvince(area.getProvince());
-            addressDTO.setDistrict(area.getDistrict());
-            addressDTO.setFullName(area.getFullName());
-            addressDTO.setPrecinct(area.getDistrict());
-            addressDTO.setStreetBlock(area.getStreetBlock());
-        });
+//        addressDTOS.forEach(addressDTO -> {
+//            Area area = areaRepository.findByAreaCode(addressDTO.getAreaCode());
+//            addressDTO.setProvince(area.getProvince());
+//            addressDTO.setDistrict(area.getDistrict());
+//            addressDTO.setFullName(area.getFullName());
+//            addressDTO.setPrecinct(area.getDistrict());
+//            addressDTO.setStreetBlock(area.getStreetBlock());
+//        });
         return  addressDTOS;
     }
 }
