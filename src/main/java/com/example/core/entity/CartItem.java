@@ -15,10 +15,10 @@ import java.io.Serializable;
 @Table(name = "cart_items")
 @NoArgsConstructor
 public class CartItem extends AuditTable implements Serializable {
-    @Column(name = "CART_ID")
-    private Long cartId;
+    @Column(name = "USER_ID")
+    private Long userId;
     @Column(name = "VARIANT_ID")
     private Long variantId;
-    @Column(name = "TOTAL")
-    private Long total;
+    @Column(name = "QUANTITY")
+    private Long quantity;
 }

@@ -10,5 +10,5 @@ import java.util.List;
 public interface VariantRepository extends JpaRepository<Variant,Long> {
     List<Variant> findByProductId(Long id);
     void  deleteAllByProductId(Long id);
-    List<Variant> getVariantsByIdIs(List<Long> ids);
+    List<Variant> getVariantsByIdIsIn(List<Long> ids);
 }

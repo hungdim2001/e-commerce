@@ -25,7 +25,7 @@ public class CartController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN,ROLE_USER')")
     @PostMapping(path = "")
     @CrossOrigin
-    public ResponseEntity create(@RequestBody List<CartItem> cartItems) {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "save user successfully", cartService.addToCart(cartItems)));
+    public ResponseEntity create(@RequestBody CartItem cartItem) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "save user successfully", cartService.addToCart(cartItem)));
     }
 }

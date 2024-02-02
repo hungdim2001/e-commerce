@@ -11,4 +11,5 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long>,ProductRepositoryCustom {
     @Query(value = "select * from products  where id = ?1 or ?1 is null ", nativeQuery = true)
     List<Product> findByIdCus(Long id);
+    List<Product> findProductsByIdIsIn(List<Long> ids);
 }
