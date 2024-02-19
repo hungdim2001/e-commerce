@@ -28,4 +28,12 @@ public class CartController {
     public ResponseEntity create(@RequestBody CartItem cartItem) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "save user successfully", cartService.addToCart(cartItem)));
     }
+    @Transactional(rollbackOn = Exception.class)
+    @ApiOperation(value = "create new product")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN,ROLE_USER')")
+    @GetMapping(path = "")
+    @CrossOrigin
+    public ResponseEntity get() {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "save user successfully", cartService.getCartItem()));
+    }
 }

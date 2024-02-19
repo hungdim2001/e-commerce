@@ -66,8 +66,7 @@ public class CartService {
         });
         List<CartItemDTO> cartItemDTOS = cartItems.stream().map(cartItem -> {
             CartItemDTO cartItemDTO = modelMapper.map(cartItem, CartItemDTO.class);
-            cartItemDTO.setQuantity(variantMap.get(cartItemDTO.getVariantId()).getQuantity());
-            cartItemDTO.setSubtotal(variantMap.get(cartItemDTO.getVariantId()).getPrice() * variantMap.get(cartItemDTO.getVariantId()).getQuantity());
+            cartItemDTO.setSubtotal(variantMap.get(cartItemDTO.getVariantId()).getPrice() * cartItem.getQuantity());
             cartItemDTO.setName(productMap.get(variantMap.get(cartItemDTO.getVariantId()).getProductId()).getName());
             return cartItemDTO;
         }).collect(Collectors.toList());

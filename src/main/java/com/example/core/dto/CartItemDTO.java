@@ -8,7 +8,6 @@ public class CartItemDTO extends AuditTable {
     private Long cartId;
     private String name;
     private Long variantId;
-    private VariantDTO variant;
     private Long quantity;
     private Long subtotal;
 }
