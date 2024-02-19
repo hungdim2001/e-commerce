@@ -31,23 +31,26 @@ public class CartService {
         List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(UserUtil.getUserId());
         cartItem.setUserId(UserUtil.getUserId());
         List<CartItem> newCartItems = new ArrayList<>();
-        if (!Utils.isNullOrEmpty(cartItems))
-            newCartItems = cartItems.stream().map(item -> {
-                if (item.getVariantId().equals(cartItem.getVariantId())) {
-                    item.setQuantity(item.getQuantity() + cartItem.getQuantity());
-                    item.setUpdateDatetime(new Date());
-                    item.setUpdateUser(UserUtil.getUserId());
-                    return item;
-                }
+        Integer count = cartItemRepository.existsByUserIdAndVariantIdAndQuantityGreaterThanZero(UserUtil.getUserId(), cartItem.getVariantId());
+        if (!(count != null && count > 0)) {
+            cartItem.setCreateDatetime(new Date());
+            cartItem.setCreateUser(UserUtil.getUserId());
+            cartItemRepository.save(cartItem);
+            return getCartItem();
+        }
+        newCartItems = cartItems.stream().map(item -> {
+            if (item.getVariantId().equals(cartItem.getVariantId())) {
+                item.setQuantity(item.getQuantity() + cartItem.getQuantity());
+                item.setUpdateDatetime(new Date());
+                item.setUpdateUser(UserUtil.getUserId());
                 return item;
-            }).collect(Collectors.toList());
+            }
+            return item;
+        }).collect(Collectors.toList());
         if (!Utils.isNullOrEmpty(newCartItems)) {
             cartItemRepository.saveAll(newCartItems);
             return getCartItem();
         }
-        cartItem.setCreateDatetime(new Date());
-        cartItem.setCreateUser(UserUtil.getUserId());
-        cartItemRepository.save(cartItem);
         return getCartItem();
     }
 
