@@ -28,7 +28,7 @@ public class VNPayController {
     public ResponseEntity<?> createPayment() throws UnsupportedEncodingException {
         OrderDTO orderDTO = new OrderDTO();
 //        double amount = paymentDTO.getAmount() * 100;
-        int amount = 10000000;
+        int amount = 100004000;
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", VNPayConfig.VNP_VERSION);
         vnp_Params.put("vnp_Command", VNPayConfig.VNP_COMMAND);
@@ -42,7 +42,7 @@ public class VNPayController {
         vnp_Params.put("vnp_OrderType", VNPayConfig.ORDER_TYPE);
         vnp_Params.put("vnp_Locale", VNPayConfig.LOCATE);
         vnp_Params.put("vnp_ReturnUrl", VNPayConfig.RETURNURL);
-        vnp_Params.put("vnp_IpAddr", VNPayConfig.IPDEFAULT);
+        vnp_Params.put("vnp_IpAddr", "0:0:0:0:0:0:0:2");
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -73,10 +73,9 @@ public class VNPayController {
 
         String queryUrl = query.toString();
         String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.CHECKSUM, hashData.toString());
-//        queryUrl += "&vnp_SecureHashType=SHA256&vnp_SecureHash=" + vnp_SecureHash;
-        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        queryUrl += "&vnp_SecureHashType=SHA256&vnp_SecureHash=" + vnp_SecureHash;
+//        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VNPayConfig.VNP_PAYURL + "?" + queryUrl;
-
         PaymentResDTO paymentResDTO = new PaymentResDTO();
         paymentResDTO.setStatus("Ok");
         paymentResDTO.setMessage("Successfully");

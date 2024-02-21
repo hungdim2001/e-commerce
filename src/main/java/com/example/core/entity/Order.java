@@ -29,4 +29,6 @@ public class Order extends AuditTable implements Serializable {
     private Long addressId;
     @Column(name = "pay_method")
     private String payMethod;
+    @Column(name="status_order")
+    private String statusOrder;
 }

@@ -34,7 +34,7 @@ public class CartService {
         List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(UserUtil.getUserId());
         // check exist cartItem
         Variant variant = variantRepository.findById(cartItem.getVariantId()).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND,"User Not Found with id: " + cartItem.getVariantId())
+                () -> new NotFoundException(HttpStatus.NOT_FOUND, "User Not Found with id: " + cartItem.getVariantId())
         );
         if (cartItem.getQuantity() > variant.getQuantity()) {
             throw new IllegalArgumentException(HttpStatus.BAD_REQUEST, "quantity is not enough");
@@ -79,8 +79,14 @@ public class CartService {
         });
         List<CartItemDTO> cartItemDTOS = cartItems.stream().map(cartItem -> {
             CartItemDTO cartItemDTO = modelMapper.map(cartItem, CartItemDTO.class);
-            cartItemDTO.setSubtotal(variantMap.get(cartItemDTO.getVariantId()).getPrice() * cartItem.getQuantity());
+            if (cartItemDTO.getQuantity() > variantMap.get((cartItemDTO.getVariantId())).getQuantity()) {
+                cartItemDTO.setQuantity(variantMap.get((cartItemDTO.getVariantId())).getQuantity());
+                // update cartItem
+                cartItem.setQuantity(variantMap.get((cartItemDTO.getVariantId())).getQuantity());
+                cartItemRepository.save((cartItem));
+            }
             cartItemDTO.setName(productMap.get(variantMap.get(cartItemDTO.getVariantId()).getProductId()).getName());
+            cartItemDTO.setSubtotal(variantMap.get(cartItemDTO.getVariantId()).getPrice() * cartItem.getQuantity());
             return cartItemDTO;
         }).collect(Collectors.toList());
         return cartItemDTOS;
