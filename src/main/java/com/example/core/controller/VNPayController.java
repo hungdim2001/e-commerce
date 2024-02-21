@@ -36,7 +36,7 @@ public class VNPayController {
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", VNPayConfig.CURRCODE);
         vnp_Params.put("vnp_BankCode", "NCB");
-        vnp_Params.put("vnp_TxnRef", "1"); // Order id
+        vnp_Params.put("vnp_TxnRef", "3"); // Order id
         vnp_Params.put("vnp_OrderInfo", "Ok");
 //        vnp_Params.put("vnp_BankTranNo", paymentDTO.getDescription());
         vnp_Params.put("vnp_OrderType", VNPayConfig.ORDER_TYPE);
