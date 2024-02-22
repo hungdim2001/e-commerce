@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class OrderService {
     @Autowired
     VnPayService vnPayService;
 
-    public void createOrderVnPay(OrderRequest orderRequest) {
+    public String createOrderVnPay(OrderRequest orderRequest) throws UnsupportedEncodingException {
         Long userId = UserUtil.getUserId();
         List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(userId);
         Order order = Order.builder()
@@ -71,6 +72,7 @@ public class OrderService {
         })).collect(Collectors.toList());
         Long totalPrice = orderDetails.stream().map(OrderDetail::getOrderPrice).reduce(0L, Long::sum
         );
+      return vnPayService.createPayment(totalPrice,orderSave.getId());
     }
 
 }
