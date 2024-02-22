@@ -19,8 +19,8 @@ import java.io.Serializable;
 public class OrderDetail extends AuditTable implements Serializable {
     @Column(name = "order_id")
     private Long orderId;
-    @Column(name = "product_id")
-    private Long productId;
+    @Column(name = "variant_id")
+    private Long variantId;
     @Column(name = "order_price")
     private Long orderPrice;
     @Column(name = "quantity")

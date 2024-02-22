@@ -15,7 +15,7 @@ import java.util.*;
 
 @Service
 public class VnPayService {
-    public void createPayment(Long price) throws UnsupportedEncodingException {
+    public  ResponseEntity<?>  createPayment(Long price, Long orderId) throws UnsupportedEncodingException {
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", VNPayConfig.VNP_VERSION);
         vnp_Params.put("vnp_Command", VNPayConfig.VNP_COMMAND);
@@ -23,7 +23,7 @@ public class VnPayService {
         vnp_Params.put("vnp_Amount", String.valueOf(price));
         vnp_Params.put("vnp_CurrCode", VNPayConfig.CURRCODE);
         vnp_Params.put("vnp_BankCode", "NCB");
-        vnp_Params.put("vnp_TxnRef", "1"); // Order id
+        vnp_Params.put("vnp_TxnRef", String.valueOf(orderId)); // Order id
         vnp_Params.put("vnp_OrderInfo", "Ok");
         vnp_Params.put("vnp_OrderType", VNPayConfig.ORDER_TYPE);
         vnp_Params.put("vnp_Locale", VNPayConfig.LOCATE);
@@ -62,6 +62,6 @@ public class VnPayService {
         paymentResDTO.setStatus("Ok");
         paymentResDTO.setMessage("Successfully");
         paymentResDTO.setURL(paymentUrl);
-
+        return ResponseEntity.status(HttpStatus.OK).body(paymentResDTO);
     }
 }
