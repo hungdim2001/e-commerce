@@ -13,7 +13,7 @@ import java.io.Serializable;
 @SuperBuilder
 @Entity
 @Data
-@Table(name = "orders")
+@Table(name = "order_details")
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetail extends AuditTable implements Serializable {

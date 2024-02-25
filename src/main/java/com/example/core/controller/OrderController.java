@@ -24,7 +24,7 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USERj')")
     @PostMapping(path = "/vnpay")
     @CrossOrigin
-    public ResponseEntity create(@RequestBody OrderRequest orderRequest) throws Exception {
+    public ResponseEntity createVnPay(@RequestBody OrderRequest orderRequest) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", orderService.createOrderVnPay(orderRequest)));
     }
 }
