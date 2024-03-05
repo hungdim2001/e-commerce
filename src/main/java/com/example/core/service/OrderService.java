@@ -70,9 +70,9 @@ public class OrderService {
                     .build();
             return orderDetail;
         })).collect(Collectors.toList());
-        Long totalPrice = orderDetails.stream().map(orderDetail -> {
-            return orderDetail.getOrderPrice() * orderDetail.getQuantity();
-        }).reduce(0L, Long::sum
+        Long totalPrice = orderDetails.stream().map(orderDetail ->
+            orderDetail.getOrderPrice() * orderDetail.getQuantity()
+       ).reduce(0L, Long::sum
         );
         return vnPayService.createPayment(totalPrice, orderSave.getId());
     }

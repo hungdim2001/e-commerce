@@ -21,6 +21,7 @@ public class VnPayService {
         vnp_Params.put("vnp_Command", VNPayConfig.VNP_COMMAND);
         vnp_Params.put("vnp_TmnCode", VNPayConfig.TMN_CODE);
         vnp_Params.put("vnp_Amount", String.valueOf(price));
+//        vnp_Params.put("vnp_Amount", String.valueOf(123456789));
         vnp_Params.put("vnp_CurrCode", VNPayConfig.CURRCODE);
         vnp_Params.put("vnp_BankCode", "NCB");
         vnp_Params.put("vnp_TxnRef", String.valueOf(orderId)); // Order id
