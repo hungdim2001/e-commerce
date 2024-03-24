@@ -46,7 +46,6 @@ public class AuthService {
     private UserRoleRepository userRoleRepository;
     @Autowired
     private TokenRepository tokenRepository;
-
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
@@ -130,9 +129,14 @@ public class AuthService {
     public String findEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Email not exist"));
         TokenType accessToken = jwtUtils.generateJwtToken(user.getId(), true);
-
-        String message = " Xin chào bạn,\n" + "\n" + "Để khôi phục lại mật khẩu, xin nhấp vào " + "http://localhost:8080/reset-password?token=" + accessToken.getToken() + " để tạo mật khẩu mới." + "Link này sẽ hết hạn trong 5 phút";
-        try {
+        String message = " Xin chào bạn,\n" +
+                "\n" +
+                "Để khôi phục lại mật khẩu, xin nhấp vào " + "http://localhost:3000/auth/reset-password/" +
+                user.getId() + "/" +
+                accessToken.getToken() +
+                " để tạo mật khẩu mới." +
+                "Link này sẽ hết hạn trong 5 phút";
+       try {
 
             mailService.sendSimpleEmail(user.getEmail(), "Reset Password", message, true);
         } catch (Exception e) {

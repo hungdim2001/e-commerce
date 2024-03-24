@@ -3,25 +3,25 @@ package com.example.core.service;
 import com.example.core.dto.VariantDTO;
 import com.example.core.dto.request.CartItemRequest;
 import com.example.core.dto.request.OrderRequest;
-import com.example.core.entity.CartItem;
-import com.example.core.entity.Order;
-import com.example.core.entity.OrderDetail;
-import com.example.core.entity.Variant;
+import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
-import com.example.core.repository.CartItemRepository;
-import com.example.core.repository.OrderDetailRepository;
-import com.example.core.repository.OrderRepository;
-import com.example.core.repository.VariantRepository;
+import com.example.core.exceptions.NotFoundException;
+import com.example.core.repository.*;
+import com.example.core.security.jwt.JwtUtils;
+import com.example.core.util.BaseUtils;
 import com.example.core.util.UserUtil;
+import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,8 +36,13 @@ public class OrderService {
     VariantRepository variantRepository;
     @Autowired
     VnPayService vnPayService;
-
-    public String createOrderVnPay(OrderRequest orderRequest) throws UnsupportedEncodingException {
+    @Autowired
+    private JwtUtils jwtUtils;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CodeRepository codeRepository;
+    public String createOrderVnPay(OrderRequest orderRequest, HttpServletRequest httpRequest) throws UnsupportedEncodingException {
         Long userId = UserUtil.getUserId();
         List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(userId);
         Order order = Order.builder()
@@ -71,10 +76,19 @@ public class OrderService {
             return orderDetail;
         })).collect(Collectors.toList());
         Long totalPrice = orderDetails.stream().map(orderDetail ->
-            orderDetail.getOrderPrice() * orderDetail.getQuantity()
-       ).reduce(0L, Long::sum
+                orderDetail.getOrderPrice() * orderDetail.getQuantity()
+        ).reduce(0L, Long::sum
         );
-        return vnPayService.createPayment(totalPrice, orderSave.getId());
+        return vnPayService.createPayment(totalPrice, orderSave.getId(), httpRequest);
+    }
+
+    public String checkOrder(HttpServletRequest request) throws IOException {
+        String jwt = BaseUtils.parseJwt(request);
+        Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
+         userRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
+         // chuyển trạng thái của order
+        // xoá cart item
+       return "" ;
     }
 
 }

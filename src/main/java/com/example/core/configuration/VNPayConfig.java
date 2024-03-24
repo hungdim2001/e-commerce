@@ -9,7 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import java.util.*;
+
 @AllArgsConstructor
 public class VNPayConfig {
 
@@ -20,7 +21,7 @@ public class VNPayConfig {
     public static final String TMN_CODE  = "HJLGMQIE";
     public static final String CURRCODE = "VND";
     public static final String LOCATE = "vn";
-    public static final String RETURNURL = "http://localhost:4000/dashboard/e-commerce/checkout"; // thong bao khi da thanh toan don hang
+    public static final String RETURNURL = "http://localhost:3000/dashboard/e-commerce/checkout"; // thong bao khi da thanh toan don hang
     public static final String VNP_PAYURL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // di den trang thanh toan
     public static final String CHECKSUM = "TQXODNIVBTVDWEFSIRBNNIJEZTIKSBKJ";
     public static final String CHARGEURL = "http://localhost:4200/thong-tin-nap-tien";
@@ -74,28 +75,28 @@ public class VNPayConfig {
     }
 
     //Util for VNPAY
-//    public static String hashAllFields(Map fields) {
-//        // create a list and sort it
-//        List fieldNames = new ArrayList(fields.keySet());
-//        Collections.sort(fieldNames);
-//        // create a buffer for the md5 input and add the secure secret first
-//        StringBuilder sb = new StringBuilder();
-//
-//        Iterator itr = fieldNames.iterator();
-//        while (itr.hasNext()) {
-//            String fieldName = (String) itr.next();
-//            String fieldValue = (String) fields.get(fieldName);
-//            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-//                sb.append(fieldName);
-//                sb.append("=");
-//                sb.append(fieldValue);
-//            }
-//            if (itr.hasNext()) {
-//                sb.append("&");
-//            }
-//        }
-//        return hmacSHA512(com.vnpay.common.Config.vnp_HashSecret, sb.toString());
-//    }
+    public static String hashAllFields(Map fields) {
+        // create a list and sort it
+        List fieldNames = new ArrayList(fields.keySet());
+        Collections.sort(fieldNames);
+        // create a buffer for the md5 input and add the secure secret first
+        StringBuilder sb = new StringBuilder();
+
+        Iterator itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = (String) itr.next();
+            String fieldValue = (String) fields.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                sb.append(fieldName);
+                sb.append("=");
+                sb.append(fieldValue);
+            }
+            if (itr.hasNext()) {
+                sb.append("&");
+            }
+        }
+        return hmacSHA512(VNPayConfig.CHECKSUM, sb.toString());
+    }
 
     public static String getIpAddress(HttpServletRequest request) {
         String ipAdress;

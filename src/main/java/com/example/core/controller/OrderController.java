@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 @RequestMapping("/api/order")
@@ -24,7 +25,16 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USERj')")
     @PostMapping(path = "/vnpay")
     @CrossOrigin
-    public ResponseEntity createVnPay(@RequestBody OrderRequest orderRequest) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create/update product successfully ", orderService.createOrderVnPay(orderRequest)));
+    public ResponseEntity createVnPay(@RequestBody OrderRequest orderRequest, HttpServletRequest httpServletRequest) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create order successfully ", orderService.createOrderVnPay(orderRequest, httpServletRequest)));
     }
+    @Transactional(rollbackOn = Exception.class)
+    @ApiOperation(value = "check order")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(path = "/check")
+    @CrossOrigin
+    public ResponseEntity createSuccess(HttpServletRequest httpServletRequest) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "check order successfully ", orderService.checkOrder(httpServletRequest)));
+    }
+
 }
