@@ -5,6 +5,7 @@ import com.example.core.dto.request.CartItemRequest;
 import com.example.core.dto.request.OrderRequest;
 import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
+import com.example.core.exceptions.InvalidRefreshToken;
 import com.example.core.exceptions.NotFoundException;
 import com.example.core.repository.*;
 import com.example.core.security.jwt.JwtUtils;
@@ -21,6 +22,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +44,7 @@ public class OrderService {
     private UserRepository userRepository;
     @Autowired
     private CodeRepository codeRepository;
+
     public String createOrderVnPay(OrderRequest orderRequest, HttpServletRequest httpRequest) throws UnsupportedEncodingException {
         Long userId = UserUtil.getUserId();
         List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(userId);
@@ -79,16 +82,29 @@ public class OrderService {
                 orderDetail.getOrderPrice() * orderDetail.getQuantity()
         ).reduce(0L, Long::sum
         );
-        return vnPayService.createPayment(totalPrice, orderSave.getId(), httpRequest);
+        String token = jwtUtils.generateJwtToken(UserUtil.getUserId(), true).getToken();
+        Code newCode = Code.builder().code(token).expiredTime(new Date().getTime() + 300000).userId(UserUtil.getUserId()).build();
+        codeRepository.save(newCode);
+        return vnPayService.createPayment(totalPrice, orderSave.getId(), httpRequest, token);
     }
 
     public String checkOrder(HttpServletRequest request) throws IOException {
         String jwt = BaseUtils.parseJwt(request);
+        Code token = codeRepository.findByCode(jwt).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
+        if (new Date(token.getExpiredTime() * 1000).after(new Date())) {
+            throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST, "code is expired");
+        }
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
-         userRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
-         // chuyển trạng thái của order
+        userRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
+        // chuyển trạng thái của order
+        orderRepository.changeStatusOrder(UserUtil.getUserId());
         // xoá cart item
-       return "" ;
+        cartItemRepository.deleteByUserId(id);
+        //xoá token
+        codeRepository.removeCode(UserUtil.getUserId());
+
+
+        return "";
     }
 
 }
