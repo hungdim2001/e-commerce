@@ -32,7 +32,7 @@ public class VnPayService {
         vnp_Params.put("vnp_OrderInfo", "Ok");
         vnp_Params.put("vnp_OrderType", VNPayConfig.ORDER_TYPE);
         vnp_Params.put("vnp_Locale", VNPayConfig.LOCATE);
-        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.RETURNURL+token);
+        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.RETURNURL+"/"+token);
         vnp_Params.put("vnp_IpAddr", VNPayConfig.getIpAddress(httpServletRequest));
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");

@@ -102,8 +102,6 @@ public class OrderService {
         cartItemRepository.deleteByUserId(id);
         //xoá token
         codeRepository.removeCode(UserUtil.getUserId());
-
-
         return "";
     }
 
