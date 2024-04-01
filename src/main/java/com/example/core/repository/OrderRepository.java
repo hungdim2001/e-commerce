@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepository  extends JpaRepository<Order,Long> {
-    @Query(value ="update  table orders set status_order ='PAID' where user_id = ?1", nativeQuery = true)
+    @Query(value ="update  orders set status_order ='PAID' where user_id = ?1", nativeQuery = true)
     void changeStatusOrder(Long userId);
 }

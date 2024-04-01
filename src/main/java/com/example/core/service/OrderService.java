@@ -91,7 +91,8 @@ public class OrderService {
     public String checkOrder(HttpServletRequest request) throws IOException {
         String jwt = BaseUtils.parseJwt(request);
         Code token = codeRepository.findByCode(jwt).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
-        if (new Date(token.getExpiredTime() * 1000).after(new Date())) {
+        System.out.printf(String.valueOf(new Date(token.getExpiredTime())));
+        if (new Date(token.getExpiredTime()).before(new Date())) {
             throw new InvalidRefreshToken(HttpStatus.BAD_REQUEST, "code is expired");
         }
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
