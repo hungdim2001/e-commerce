@@ -45,18 +45,22 @@ public class OrderService {
     @Autowired
     private CodeRepository codeRepository;
 
-    public String createOrderVnPay(OrderRequest orderRequest, HttpServletRequest httpRequest) throws UnsupportedEncodingException {
+    public String createOrderVnPay(OrderRequest orderRequest, HttpServletRequest httpRequest, boolean isVNPay) throws UnsupportedEncodingException {
         Long userId = UserUtil.getUserId();
         List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(userId);
         Order order = Order.builder()
                 .addressId(orderRequest.getAddressId())
                 .estimateDate(orderRequest.getEstimateDate())
-                .payMethod("VnPay")
                 .shippingFee(orderRequest.getShippingFee())
                 .shippingMethod(orderRequest.getShippingMethod())
                 .createUser(userId)
+                .userId(userId)
                 .createDatetime(new Date())
                 .build();
+        if(isVNPay)
+            order.setPayMethod("VNPAY");
+        else
+            order.setPayMethod("NORMAL");
         Order orderSave = orderRepository.save(order);
         List<Variant> variants = variantRepository.getVariantsByIdIsIn(cartItems.stream().map(item -> item.getVariantId()).collect(Collectors.toList()));
         Map<Long, Variant> variantMap = new HashMap<>();
@@ -78,6 +82,7 @@ public class OrderService {
                     .build();
             return orderDetail;
         })).collect(Collectors.toList());
+        orderDetailRepository.saveAll(orderDetails);
         Long totalPrice = orderDetails.stream().map(orderDetail ->
                 orderDetail.getOrderPrice() * orderDetail.getQuantity()
         ).reduce(0L, Long::sum
@@ -85,7 +90,9 @@ public class OrderService {
         String token = jwtUtils.generateJwtToken(UserUtil.getUserId(), true).getToken();
         Code newCode = Code.builder().code(token).expiredTime(new Date().getTime() + 300000).userId(UserUtil.getUserId()).build();
         codeRepository.save(newCode);
-        return vnPayService.createPayment(totalPrice, orderSave.getId(), httpRequest, token);
+        if (isVNPay)
+            return vnPayService.createPayment(totalPrice, orderSave.getId(), httpRequest, token);
+        return "http://localhost:3000/order/success/" + token;
     }
 
     public String checkOrder(HttpServletRequest request) throws IOException {
@@ -99,6 +106,18 @@ public class OrderService {
         userRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Not user with id"));
         // chuyển trạng thái của order
         orderRepository.changeStatusOrder(UserUtil.getUserId());
+        // giảm số lượng variants
+        List<CartItem> cartItems = cartItemRepository.getCartItemsByUserId(id);
+        List<Variant> variants = variantRepository.getVariantsByIdIsIn(cartItems.stream().map(item -> item.getVariantId()).collect(Collectors.toList()));
+        Map<Long, Long> quantityItemMap = new HashMap<>();
+        cartItems.forEach(cartItem -> {
+                    quantityItemMap.put(cartItem.getVariantId(), cartItem.getQuantity());
+                }
+        );
+        variants.forEach(variant -> {
+            variant.setQuantity(variant.getQuantity() - quantityItemMap.get(variant.getId()));
+        });
+        variantRepository.saveAll(variants);
         // xoá cart item
         cartItemRepository.deleteByUserId(id);
         //xoá token

@@ -23,10 +23,10 @@ public class OrderController {
     @Transactional(rollbackOn = Exception.class)
     @ApiOperation(value = "create new order")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USERj')")
-    @PostMapping(path = "/vnpay")
+    @PostMapping(path = "/")
     @CrossOrigin
-    public ResponseEntity createVnPay(@RequestBody OrderRequest orderRequest, HttpServletRequest httpServletRequest) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create order successfully ", orderService.createOrderVnPay(orderRequest, httpServletRequest)));
+    public ResponseEntity create(@RequestParam boolean isVNPAY , @RequestBody OrderRequest orderRequest, HttpServletRequest httpServletRequest) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "create order successfully ", orderService.createOrderVnPay(orderRequest, httpServletRequest,isVNPAY)));
     }
     @Transactional(rollbackOn = Exception.class)
     @ApiOperation(value = "check order")
