@@ -20,8 +20,6 @@ import java.util.Date;
 public class ActionAudit extends AuditTable implements Serializable {
     @Column(name = "USER_ID")
     private Long userId;
-    @Column(name = "BROWSER")
-    private String browser;
     @Column(name="IP_CLIENT")
     private String ipClient;
     @Column(name = "ACTION_TIME")
@@ -30,10 +28,26 @@ public class ActionAudit extends AuditTable implements Serializable {
     private String action;
     @Column(name = "PRODUCT_ID")
     private Long productId;
-    @Column(name="DEVICE_TYPE")
-    private String deviceType;
-    @Column(name = "location")
-    private String location;
     @Column(name= "KEYWORD")
-    private String search;
+    private String keyword;
+    @Column(name= "LAT")
+    private String lat;
+    @Column(name= "LON")
+    private String lon;
+    @Column(name= "ROAD")
+    private String road;
+    @Column(name= "QUARTER")
+    private String quarter;
+    @Column(name= "SUBURB")
+    private String suburb;
+    @Column(name= "CITY")
+    private String city;
+    @Column(name= "POSTCODE")
+    private String postcode;
+    @Column(name= "COUNTRY")
+    private String country;
+    @Column(name= "COUNTRY_CODE")
+    private String country_code;
+    @Column(name="USER_AGENT")
+    private String userAgent;
 }
