@@ -20,34 +20,34 @@ import java.util.Date;
 public class ActionAudit extends AuditTable implements Serializable {
     @Column(name = "USER_ID")
     private Long userId;
-    @Column(name="IP_CLIENT")
+    @Column(name = "IP_CLIENT")
     private String ipClient;
     @Column(name = "ACTION_TIME")
     private Date actionTime;
-    @Column(name="ACTION")
+    @Column(name = "ACTION")
     private String action;
-    @Column(name = "PRODUCT_ID")
-    private Long productId;
-    @Column(name= "KEYWORD")
+    @Column(name = "VARIANT_ID")
+    private Long variantId;
+    @Column(name = "KEYWORD")
     private String keyword;
-    @Column(name= "LAT")
+    @Column(name = "LAT")
     private String lat;
-    @Column(name= "LON")
+    @Column(name = "LON")
     private String lon;
-    @Column(name= "ROAD")
+    @Column(name = "ROAD")
     private String road;
-    @Column(name= "QUARTER")
+    @Column(name = "QUARTER")
     private String quarter;
-    @Column(name= "SUBURB")
+    @Column(name = "SUBURB")
     private String suburb;
-    @Column(name= "CITY")
+    @Column(name = "CITY")
     private String city;
-    @Column(name= "POSTCODE")
+    @Column(name = "POSTCODE")
     private String postcode;
-    @Column(name= "COUNTRY")
+    @Column(name = "COUNTRY")
     private String country;
-    @Column(name= "COUNTRY_CODE")
+    @Column(name = "COUNTRY_CODE")
     private String country_code;
-    @Column(name="USER_AGENT")
+    @Column(name = "USER_AGENT")
     private String userAgent;
 }
