@@ -54,7 +54,6 @@ public class ProductTypeController {
 
 
     @ApiOperation(value = "get")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("")
     @CrossOrigin
     public ResponseEntity get(HttpServletRequest request) throws IOException {
