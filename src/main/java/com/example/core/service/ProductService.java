@@ -261,9 +261,9 @@ public class ProductService {
         return null;
     }
 
-    public List<ProductDTO> get(String baseUrl, Long id) {
+    public List<ProductDTO> get(String baseUrl, Long id, Boolean newest) {
         //get Product
-        List<Product> resultProduct = productRepository.findByIdCus(id);
+        List<Product> resultProduct = productRepository.findByIdCus(id, newest);
         if (Utils.isNullOrEmpty(resultProduct)) {
             return null;
         }
@@ -331,7 +331,6 @@ public class ProductService {
             item.setProductSpecChars(productSpecCharDTOs);
 
         });
-
 
         return resultProductDTO;
     }

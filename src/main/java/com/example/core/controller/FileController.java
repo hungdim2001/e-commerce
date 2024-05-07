@@ -43,7 +43,7 @@ public class FileController {
         byte[] fileContent = ftpService.retrieveFile(folder,fileName);
         String contentType = URLConnection.guessContentTypeFromName(fileName);
         if (contentType == null) {
-            contentType = "application/octet-stream";
+            contentType = "image/svg+xml";
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(contentType));
