@@ -16,12 +16,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>,ProductR
             "    AND (\n" +
             "        ?2 = false  -- Nếu không có biến is_newest được truyền vào\n" +
             "        OR (?2 = true  AND p.create_datetime >= (\n" +
-            "            SELECT MAX(create_datetime)\n" +
+            "            SELECT MIN(create_datetime)\n" +
             "            FROM (\n" +
             "                SELECT create_datetime\n" +
             "                FROM products\n" +
             "                ORDER BY create_datetime DESC\n" +
-            "                LIMIT 5\n" +
+            "                LIMIT 4\n" +
             "            ) AS latest_products\n" +
             "        ))\n" +
             "    )\n" +
