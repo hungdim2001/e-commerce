@@ -24,4 +24,9 @@ public class AreaService {
                 .collect(Collectors.toList());
     }
 
+    public Area getAreaByAreaCode(String code)  {
+        Area area = areaRepository.findByAreaCode(code);
+        return area;
+    }
+
 }

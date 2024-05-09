@@ -17,6 +17,10 @@ public class WhoAmIResponse {
     private String avatarUrl;
     private Boolean status;
     private String areaCode;
-private String phone;
+    private String province;
+    private String district;
+    private String precinct;
+    private String streetBlock;
+    private String phone;
 
 }

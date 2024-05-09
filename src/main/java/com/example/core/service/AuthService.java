@@ -71,7 +71,7 @@ public class AuthService {
         if (userRepository.existsByPhone(user.getPhone())) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Phone number already exists");
         }
-        User newUser = User.builder().phone(user.getPhone()).email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getEmail()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
+        User newUser = User.builder().phone(user.getPhone()).areaCode(user.getAreaCode()).email(user.getEmail()).password(encoder.encode(user.getPassword())).username(user.getEmail()).status(false).firstName(user.getFirstName()).lastName(user.getLastName()).createDatetime(new Date()).build();
         User userResponse = userRepository.save(newUser);
         String code = BaseUtils.getAlphaNumericString(6);
         Code newCode = Code.builder().code(code).expiredTime(new Date().getTime() + 300000).userId(userResponse.getId()).build();
@@ -176,12 +176,38 @@ public class AuthService {
         Long id = Long.valueOf(jwtUtils.getIdFromJwtToken(jwt, true));
         User userResponse = userRepository.getById(id);
         String role = userRoleRepository.findRoleByUserId(userResponse.getId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "user id not found"));
+        Area area = areaRepository.findByAreaCode(userResponse.getAreaCode());
 
-        return WhoAmIResponse.builder().id(userResponse.getId()).avatarUrl(userResponse.getAvatarUrl()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
-                .role(role).phone(userResponse.getPhone())
-                .username(userResponse.getUsername()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).email(userResponse.getEmail()).build();
+        String province = null;
+        String district = null;
+        String precinct = null;
+        String streetBlock = null;
+
+        if (area != null) {
+            province = area.getProvince();
+            district = area.getDistrict();
+            precinct = area.getPrecinct();
+            streetBlock = area.getStreetBlock();
+        }
+
+        return WhoAmIResponse.builder()
+                .id(userResponse.getId())
+                .avatarUrl(userResponse.getAvatarUrl())
+                .fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
+                .role(role)
+                .phone(userResponse.getPhone())
+                .province(province) // Sử dụng giá trị province đã kiểm tra null
+                .district(district) // Sử dụng giá trị district đã kiểm tra null
+                .precinct(precinct) // Sử dụng giá trị precinct đã kiểm tra null
+                .streetBlock(streetBlock) // Sử dụng giá trị streetBlock đã kiểm tra null
+                .username(userResponse.getUsername())
+                .firstName(userResponse.getFirstName())
+                .lastName(userResponse.getLastName())
+                .status(userResponse.getStatus())
+                .email(userResponse.getEmail())
+                .build();
     }
-}
+    }
 /*
     public LoginResponse oauth2SignUp(Oauth2Request user) {
         Optional<User> userFound = userRepository.findByEmail(user.getEmail());

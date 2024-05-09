@@ -26,6 +26,14 @@ public class AreaController {
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get area successfully", areaService.getArea(arg)));
     }
+    @GetMapping(value = { "/code/{arg}"})
+    @ApiOperation(value = "Get Area by code")
+    @CrossOrigin
+    public ResponseEntity getAreaByAreaCode(@PathVariable(required = false) String arg) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "get area successfully", areaService.getAreaByAreaCode(arg)));
+    }
+
+
 
 
 }
