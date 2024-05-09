@@ -84,7 +84,7 @@ public class AuthService {
         } catch (Exception e) {
             throw new DuplicateException(HttpStatus.CONFLICT, "can't send email");
         }
-        return RegisterResponse.builder().phone(userResponse.getPhone()).email(userResponse.getEmail()).id(userResponse.getId()).areaCode(userResponse.getAreaCode()).username(userResponse.getUsername()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName()).avatarUrl(userResponse.getAvatarUrl()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).role(role.getRole()).build();
+        return RegisterResponse.builder().phone(userResponse.getPhone()).email(userResponse.getEmail()).id(userResponse.getId()).areaCode(userResponse.getAreaCode()).username(userResponse.getUsername()).fullName(userResponse.getLastName() + " " + userResponse.getFirstName()).firstName(userResponse.getFirstName()).lastName(userResponse.getLastName()).status(userResponse.getStatus()).role(role.getRole()).build();
     }
 
     public String verify(String code, HttpServletRequest request) {
@@ -192,7 +192,6 @@ public class AuthService {
 
         return WhoAmIResponse.builder()
                 .id(userResponse.getId())
-                .avatarUrl(userResponse.getAvatarUrl())
                 .fullName(userResponse.getLastName() + " " + userResponse.getFirstName())
                 .role(role)
                 .phone(userResponse.getPhone())
