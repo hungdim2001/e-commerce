@@ -21,6 +21,7 @@ public class VariantDTO extends AuditTable {
     private String name;
     private Long quantity;
     private Long price;
+    private Long discountPrice;
     private Map<String,String> charValues;
 }
 

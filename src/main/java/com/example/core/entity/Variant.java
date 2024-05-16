@@ -28,5 +28,7 @@ public class Variant extends AuditTable implements Serializable {
     private Long quantity;
     @Column(name = "price")
     private Long price;
+    @Column(name = "discount_price")
+    private Long discountPrice;
 }
 
