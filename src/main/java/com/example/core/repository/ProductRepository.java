@@ -12,7 +12,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>,ProductR
     @Query(value = "SELECT p.*\n" +
             "FROM products p\n" +
             "WHERE\n" +
-            "    (?1 IS NULL OR p.id = ?1) -- Lọc theo id nếu được chỉ định, hoặc bỏ qua nếu không có id được chỉ định\n" +
+            "(?3 is null or p.product_type_id = ?3)"+
+            "  and   (?1 IS NULL OR p.id = ?1) -- Lọc theo id nếu được chỉ định, hoặc bỏ qua nếu không có id được chỉ định\n" +
             "    AND (\n" +
             "        ?2 = false  -- Nếu không có biến is_newest được truyền vào\n" +
             "        OR (?2 = true  AND p.create_datetime >= (\n" +
@@ -26,6 +27,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>,ProductR
             "        ))\n" +
             "    )\n" +
             "ORDER BY p.create_datetime DESC; -- Sắp xếp sản phẩm theo thời gian tạo giảm dần\n", nativeQuery = true)
-    List<Product> findByIdCus(Long id, Boolean  newest);
+    List<Product> findByIdCus(Long id, Boolean  newest, Long productTypeId);
     List<Product> findProductsByIdIsIn(List<Long> ids);
 }
