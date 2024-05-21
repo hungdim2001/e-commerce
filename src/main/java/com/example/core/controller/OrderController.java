@@ -22,7 +22,7 @@ public class OrderController {
 
     @Transactional(rollbackOn = Exception.class)
     @ApiOperation(value = "create new order")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USERj')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
     @PostMapping(path = "/")
     @CrossOrigin
     public ResponseEntity create(@RequestParam boolean isVNPAY , @RequestBody OrderRequest orderRequest, HttpServletRequest httpServletRequest) throws Exception {

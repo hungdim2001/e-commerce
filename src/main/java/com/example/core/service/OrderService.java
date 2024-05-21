@@ -92,7 +92,7 @@ public class OrderService {
         codeRepository.save(newCode);
         if (isVNPay)
             return vnPayService.createPayment(totalPrice, orderSave.getId(), httpRequest, token);
-        return "http://localhost:3000/order/success/" + token;
+        return "http://localhost:4000/order/success/" + token;
     }
 
     public String checkOrder(HttpServletRequest request) throws IOException {

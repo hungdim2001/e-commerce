@@ -21,7 +21,7 @@ public class VNPayConfig {
     public static final String TMN_CODE  = "HJLGMQIE";
     public static final String CURRCODE = "VND";
     public static final String LOCATE = "vn";
-    public static final String RETURNURL = "http://localhost:3000/order/success"; // thong bao khi da thanh toan don hang
+    public static final String RETURNURL = "http://localhost:4000/order/success"; // thong bao khi da thanh toan don hang
     public static final String VNP_PAYURL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // di den trang thanh toan
     public static final String CHECKSUM = "TQXODNIVBTVDWEFSIRBNNIJEZTIKSBKJ";
     public static final String CHARGEURL = "http://localhost:4200/thong-tin-nap-tien";
