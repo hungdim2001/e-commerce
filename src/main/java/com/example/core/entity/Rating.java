@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 public class Rating extends AuditTable implements Serializable {
-    @Column(name = "password", nullable = false)
+    @Column(name = "comment", nullable = false)
     private String comment;
     @Column(name = "product_id", nullable = false)
     private Long productId;

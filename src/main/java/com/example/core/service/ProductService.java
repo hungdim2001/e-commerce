@@ -1,9 +1,6 @@
 package com.example.core.service;
 
-import com.example.core.dto.ProductDTO;
-import com.example.core.dto.ProductSpecCharDTO;
-import com.example.core.dto.ProductSpecCharValueDTO;
-import com.example.core.dto.VariantDTO;
+import com.example.core.dto.*;
 import com.example.core.entity.*;
 import com.example.core.exceptions.IllegalArgumentException;
 import com.example.core.exceptions.NotFoundException;
@@ -22,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ProductService {
@@ -271,6 +269,10 @@ public class ProductService {
         }
         List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());
         // get comment;
+       List<Long> productIds = resultProductDTO.stream().map(ProductDTO::getId).collect(Collectors.toList());
+       List<Rating> ratings = ratingRepository.getRatingsByProductIdIs(productIds);
+//       List<RatingDTO> ratingDTOS = Stream.of() ratings.stream().map(item-> modelMapper.map(item, RatingDTO.class)).collect(Collectors.toList());
+//       List<User> usersComment = ratingDTOS.
         resultProductDTO.stream().forEach(item -> {
             item.setProductType(productTypeRepository.findById(item.getProductTypeId()).get());
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());

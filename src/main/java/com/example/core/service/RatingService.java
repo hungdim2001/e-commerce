@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.xml.crypto.Data;
+import java.util.List;
 
 @Service
 public class RatingService {
@@ -25,9 +26,9 @@ public class RatingService {
     ProductRepository productRepository;
 
     public String createComment(Rating rating) {
-        Order order = orderRepository.getOrderByUserIdAndVariantId(rating.getUserId(), rating.getProductId());
+        List<Order> orders = orderRepository.getOrderByUserIdAndVariantId(rating.getUserId(), rating.getProductId());
         Rating ratingExits = ratingRepository.getRatingByUserIdAndProductId(rating.getUserId(), rating.getProductId());
-        if (Utils.isNullOrEmpty(order)) {
+        if (Utils.isNullOrEmpty(orders)) {
             throw new NotFoundException(HttpStatus.BAD_REQUEST, "Must order to comment");
         }
         if (!Utils.isNullOrEmpty(ratingExits)) {
