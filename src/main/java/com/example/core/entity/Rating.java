@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -14,8 +15,12 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 public class Rating extends AuditTable implements Serializable {
+    @Column(name = "password", nullable = false)
     private String comment;
+    @Column(name = "product_id", nullable = false)
     private Long productId;
+    @Column(name = "star", nullable = false)
     private Long star;
+    @Column(name = "user_Id", nullable = false)
     private Long userId;
 }

@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
     @Autowired
+    RatingRepository ratingRepository;
+    @Autowired
     private ProductRepository productRepository;
     @Autowired
     private ProductSpecCharUseRepository productSpecCharUseRepository;
@@ -268,7 +270,7 @@ public class ProductService {
             return null;
         }
         List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());
-
+        // get comment;
         resultProductDTO.stream().forEach(item -> {
             item.setProductType(productTypeRepository.findById(item.getProductTypeId()).get());
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
