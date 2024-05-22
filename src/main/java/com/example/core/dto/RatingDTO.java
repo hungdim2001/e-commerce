@@ -16,5 +16,6 @@ public class RatingDTO extends AuditTable {
     private String comment;
     private Long productId;
     private Long star;
-    private Long full_name;
+    private String fullName;
+    private Long userId;
 }

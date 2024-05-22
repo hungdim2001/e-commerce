@@ -46,7 +46,7 @@ public class ProductSpecCharController {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = {"","/{id}"})
     @ApiOperation(value = "get product spec char")
     public ResponseEntity get(@PathVariable(required = false) Long id) {

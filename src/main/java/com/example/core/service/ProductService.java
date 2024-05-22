@@ -8,6 +8,7 @@ import com.example.core.repository.*;
 import com.example.core.util.UserUtil;
 import com.example.core.util.Utils;
 import com.google.common.collect.Lists;
+import one.util.streamex.StreamEx;
 import org.aspectj.weaver.ast.Var;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,8 @@ public class ProductService {
     private ProductSpecCharUseRepository productSpecCharUseRepository;
     @Autowired
     private ProductCharUseRepository productCharUseRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private ProductSpecCharRepository productSpecCharRepository;
     @Autowired
@@ -269,11 +271,33 @@ public class ProductService {
         }
         List<ProductDTO> resultProductDTO = resultProduct.stream().map(item -> modelMapper.map(item, ProductDTO.class)).collect(Collectors.toList());
         // get comment;
-       List<Long> productIds = resultProductDTO.stream().map(ProductDTO::getId).collect(Collectors.toList());
-       List<Rating> ratings = ratingRepository.getRatingsByProductIdIs(productIds);
-//       List<RatingDTO> ratingDTOS = Stream.of() ratings.stream().map(item-> modelMapper.map(item, RatingDTO.class)).collect(Collectors.toList());
-//       List<User> usersComment = ratingDTOS.
-        resultProductDTO.stream().forEach(item -> {
+        List<Long> productIds = resultProductDTO.stream().map(ProductDTO::getId).collect(Collectors.toList());
+        List<Rating> ratings = ratingRepository.getRatingsByProductIdIs(productIds);
+        List<RatingDTO> ratingDTOS = StreamEx.of(ratings).map(item -> modelMapper.map(item, RatingDTO.class)).collect(Collectors.toList());
+        List<Long> userIdsComment = StreamEx.of(ratingDTOS).map(RatingDTO::getUserId).collect(Collectors.toList());
+        List<User> usersComment = userRepository.getUserByUserIds(userIdsComment);
+        Map<Long, User> usersCommentMap = new HashMap<>();
+        if (!Utils.isNullOrEmpty(usersComment)) {
+            usersComment.forEach(item -> {
+                usersCommentMap.put(item.getId(), item);
+            });
+        }
+        ratingDTOS.forEach(item -> {
+            item.setFullName(usersCommentMap.get(item.getUserId()).getFirstName() + " " + usersCommentMap.get(item.getUserId()).getLastName());
+        });
+        Map<Long, List<RatingDTO>> ratingDTOMap = new HashMap<>();
+        if (!Utils.isNullOrEmpty(ratingDTOS)) {
+            ratingDTOS.forEach(item -> {
+                if (ratingDTOMap.containsKey(item.getProductId())) {
+                    ratingDTOMap.get(item.getProductId()).add(item);
+                }
+                else {
+                    ratingDTOMap.put(item.getProductId(), Lists.newArrayList(item));
+                }
+            });
+        }
+        resultProductDTO.forEach(item -> {
+            item.setRatingDTOS(ratingDTOMap.get(item.getId()));
             item.setProductType(productTypeRepository.findById(item.getProductTypeId()).get());
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());
             item.setDescription(baseUrl + apiFileEndpoint + descriptionFolder + "/" + item.getDescription());
@@ -335,7 +359,6 @@ public class ProductService {
             item.setProductSpecChars(productSpecCharDTOs);
 
         });
-
         return resultProductDTO;
     }
 }

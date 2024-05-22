@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -60,6 +61,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Transactional
     @Query(value = "update User u set u.password = ?1 where u.id = ?2")
     void updatePassword(String password, Long id);
+
+    @Query(value = "select * from users  where id in ?1", nativeQuery = true)
+    List<User> getUserByUserIds(List<Long> ids);
 //    @Modifying
 //    @Transactional
 //    @Query(value = "update User u set u.token =null where u.id = ?1")

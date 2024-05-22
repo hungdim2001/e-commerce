@@ -25,7 +25,7 @@ public class ActionAuditController {
     @PostMapping(value = {""})
     @ApiOperation(value = "create log")
     @CrossOrigin
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
     public ResponseEntity create(HttpServletRequest request, @RequestBody ActionAudit actionAudit) {
         actionAudit.setUserAgent(request.getHeader("user-agent"));
         actionAudit.setCreateDatetime(new Date());

@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 @Data
 public class ProductDTO extends AuditTable {
     private ProductType productType;
@@ -18,4 +19,5 @@ public class ProductDTO extends AuditTable {
     private Long price;
     private List<ProductSpecCharDTO> productSpecChars;
     private List<VariantDTO> variants;
+    private List<RatingDTO> ratingDTOS;
 }
