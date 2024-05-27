@@ -54,7 +54,8 @@ public class ProductService {
     private String apiFileEndpoint;
     @Autowired
     private ModelMapper modelMapper;
-
+    @Autowired
+    OrderRepository orderRepository;
     @Autowired
     private VariantRepository variantRepository;
 
@@ -290,13 +291,25 @@ public class ProductService {
             ratingDTOS.forEach(item -> {
                 if (ratingDTOMap.containsKey(item.getProductId())) {
                     ratingDTOMap.get(item.getProductId()).add(item);
-                }
-                else {
+                } else {
                     ratingDTOMap.put(item.getProductId(), Lists.newArrayList(item));
                 }
             });
         }
+
+        List<Object[]> orders = orderRepository.getOrderByProductId(productIds);
+        Map<Long, Long> productIdOrderMap = new HashMap<>();
+        if (!Utils.isNullOrEmpty(orders)) {
+            orders.forEach(order -> {
+                productIdOrderMap.put(Long.parseLong(order[0].toString()), Long.parseLong(order[1].toString()));
+            });
+        }
         resultProductDTO.forEach(item -> {
+            if (!Utils.isNullOrEmpty(productIdOrderMap.get(item.getId()))) {
+                item.setSold(productIdOrderMap.get(item.getId()));
+            } else {
+                item.setSold(0L);
+            }
             item.setRatingDTOS(ratingDTOMap.get(item.getId()));
             item.setProductType(productTypeRepository.findById(item.getProductTypeId()).get());
             item.setThumbnail(baseUrl + apiFileEndpoint + thumbnailFolder + "/" + item.getThumbnail());

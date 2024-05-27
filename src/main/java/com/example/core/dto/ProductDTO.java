@@ -16,6 +16,7 @@ public class ProductDTO extends AuditTable {
     private String quantity;
     private String thumbnail;
     private List<String> images;
+    private Long sold;
     private Long price;
     private List<ProductSpecCharDTO> productSpecChars;
     private List<VariantDTO> variants;
