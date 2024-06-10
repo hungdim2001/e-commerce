@@ -60,11 +60,11 @@ public class ProductController {
     @ApiOperation(value = "get")
     @GetMapping(value = {"", "/{id}"})
     @CrossOrigin
-    public ResponseEntity get(HttpServletRequest request, @PathVariable(required = false) Long id, @RequestParam(value = "newest", required = false, defaultValue = "false") Boolean newest,  @RequestParam(value = "productTypeId", required = false) Long productTypeId) throws IOException {
+    public ResponseEntity get(HttpServletRequest request, @PathVariable(required = false) Long id, @RequestParam(value = "newest", required = false, defaultValue = "false") Boolean newest, @RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "productTypeId", required = false) Long productTypeId) throws IOException {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObj(HttpStatus.OK.value(), true, "Get product successfully", productService.get(ServletUriComponentsBuilder.fromRequestUri(request)
                 .replacePath(null)
                 .build()
-                .toUriString(), id, newest, productTypeId)));
+                .toUriString(), id, newest, productTypeId, keyword)));
 
     }
 
