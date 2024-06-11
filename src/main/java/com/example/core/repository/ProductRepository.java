@@ -13,7 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,ProductR
             "FROM products p\n" +
             "WHERE\n" +
             "(?3 is null or p.product_type_id = ?3)" +
-            " and ?4 is null or p.name like '%'+?4 +'%'" +
+            " and (?4 is null or p.name like %?4%)" +
             "  and   (?1 IS NULL OR p.id = ?1) -- Lọc theo id nếu được chỉ định, hoặc bỏ qua nếu không có id được chỉ định\n" +
             "    AND (\n" +
             "        ?2 = false  -- Nếu không có biến is_newest được truyền vào\n" +

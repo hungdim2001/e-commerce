@@ -28,6 +28,8 @@ public class ActionAudit extends AuditTable implements Serializable {
     private String action;
     @Column(name = "VARIANT_ID")
     private Long variantId;
+    @Column(name = "PRODUCT_ID")
+    private Long productId;
     @Column(name = "KEYWORD")
     private String keyword;
     @Column(name = "LAT")
